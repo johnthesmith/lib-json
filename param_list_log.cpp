@@ -77,6 +77,7 @@ void ParamListLog::dumpInternal
             }
             break;
             default:
+                auto s  = p -> getSize();
                 aLog
                 -> trace()
                 -> pushColor()
@@ -89,6 +90,10 @@ void ParamListLog::dumpInternal
                 -> text( " = " )
                 -> setColor( aLog -> colorValue )
                 -> value( aParamList -> getString( i ) )
+                -> setColor( aLog -> colorLabel )
+                -> text( " size " )
+                -> setColor( aLog -> colorValue )
+                -> value( ( long long int ) s )
                 -> popColor()
                 ;
             break;
