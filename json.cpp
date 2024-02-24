@@ -72,17 +72,15 @@ Json* Json::fromString
     const string a
 )
 {
-
     int c = a.length();
 
-    /* Cteate default object */
+    /* Cteate ROOT object */
     auto obj = JsonObject::create();
 
     obj -> name = "ROOT";
     obj -> pairBegin();
     obj -> nameEnd();
     obj -> pairPart = PP_VALUE;
-
 
     for( index = 0; index < c && isOk(); index++ )
     {
@@ -140,6 +138,7 @@ Json* Json::fromString
                                     error( "Unexpected ] and heracly error", obj );
                                 }
                             break;
+                            default:break;
                         }
                     }
                 }
@@ -252,6 +251,7 @@ Json* Json::fromString
                                     error( "Unexpected \" in value part", obj );
                                 }
                             break;
+                            default:break;
                         }
                     }
                     else
@@ -431,21 +431,20 @@ Json* Json::fromString
         {
             obj -> pairEnd();
             /* obj -> paramList ROOT must contin the KT_OBJECT */
-
             if
             (
                 obj -> paramList -> getByIndex( 0 ) != NULL &&
                 obj -> paramList -> getByIndex( 0 ) -> getType() == KT_OBJECT
             )
             {
-               /* Destroy JSON paramlist */
-               paramList -> destroy();
-               /* Set first element Paramlist of root as Json Paramlist */
-               paramList = obj -> paramList -> getByIndex( 0 ) -> getObject();
-               /* Remove objects from object */
-               obj -> paramList -> resize( 0 );
-               /* Destroy ROOT paramlist */
-               obj -> paramList -> destroy();
+                /* Destroy JSON paramlist */
+                paramList -> destroy();
+                /* Set first element Paramlist of root as Json Paramlist */
+                paramList = obj -> paramList -> getByIndex( 0 ) -> getObject();
+                /* Remove objects from object */
+                obj -> paramList -> resize( 0 );
+                /* Destroy ROOT paramlist */
+                obj -> paramList -> destroy();
             }
             else
             {
@@ -701,6 +700,7 @@ JsonObject* JsonObject::create
 {
     auto result = new JsonObject();
     result -> prevJsonObject = aParent;
+    /* Create ROOT param list */
     result -> paramList = ParamList::create();
     return result;
 }
@@ -781,73 +781,53 @@ JsonObject* JsonObject::pairBegin()
 
 JsonObject* JsonObject::pairEnd()
 {
-    if( fArray )
+    if( fStringEnd )
     {
-        if( fStringEnd )
-        {
-            paramList -> pushString( value );
-        }
-        else
-        {
-            if( valueParamList != NULL)
-            {
-                paramList -> pushObject( valueParamList);
-            }
-            else
-            {
-                switch( getType( value ) )
-                {
-                    case KT_NULL:
-                        paramList -> pushInt( 0 );
-                    break;
-                    case KT_STRING:
-                        paramList -> pushString( value );
-                    break;
-                    case KT_BOOL:
-                        paramList -> pushBool( stringToBool( value ));
-                    break;
-                    case KT_INT:
-                        paramList -> pushInt( stringToInt( value ));
-                    break;
-                    case KT_DOUBLE:
-                        paramList -> pushDouble( stringToDouble( value ));
-                    break;
-                }
-            }
-        }
+        fArray
+        ? paramList -> pushString( value )
+        : paramList -> setString( name, value );
     }
     else
     {
-        if( fStringEnd )
+        if( valueParamList != NULL)
         {
-            paramList -> setString( name, value );
+            fArray
+            ? paramList -> pushObject( valueParamList)
+            : paramList -> setObject( name, valueParamList);
         }
         else
         {
-            if( valueParamList != NULL)
+            switch( getType( value ) )
             {
-                paramList -> setObject( name, valueParamList);
-            }
-            else
-            {
-                switch( getType( value ) )
-                {
-                    case KT_NULL:
-                        paramList -> setInt( name, 0 );
-                    break;
-                    case KT_STRING:
-                        paramList -> setString( name, value );
-                    break;
-                    case KT_BOOL:
-                        paramList -> setBool( name, stringToBool( value ));
-                    break;
-                    case KT_INT:
-                        paramList -> setInt( name, stringToInt( value ));
-                    break;
-                    case KT_DOUBLE:
-                        paramList -> setDouble( name, stringToDouble( value ));
-                    break;
-                }
+                case KT_UNKNOWN:
+                case KT_OBJECT:
+                case KT_ARRAY:
+                case KT_DATA:
+                case KT_NULL:
+                    fArray
+                    ? paramList -> pushInt( 0 )
+                    : paramList -> setInt( name, 0 );
+                break;
+                case KT_STRING:
+                    fArray
+                    ? paramList -> pushString( value )
+                    : paramList -> setString( name, value );
+                break;
+                case KT_BOOL:
+                    fArray
+                    ? paramList -> pushBool( stringToBool( value ))
+                    : paramList -> setBool( name, stringToBool( value ));
+                break;
+                case KT_INT:
+                    fArray
+                    ? paramList -> pushInt( stringToInt( value ))
+                    : paramList -> setInt( name, stringToInt( value ));
+                break;
+                case KT_DOUBLE:
+                    fArray
+                    ? paramList -> pushDouble( stringToDouble( value ))
+                    : paramList -> setDouble( name, stringToDouble( value ));
+                break;
             }
         }
     }

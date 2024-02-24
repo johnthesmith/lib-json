@@ -5,6 +5,7 @@
 #pragma once
 
 #include "param_list.h"
+#include "../core/result.h"
 
 
 
@@ -12,7 +13,7 @@ using namespace std;
 
 
 
-struct ParamListFile : public ParamList
+struct ParamListFile : public ParamList, public Result
 {
     /*
         Create and return the ParamListFile object

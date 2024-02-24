@@ -56,7 +56,7 @@ class Param
         /*
             Destructor
         */
-        ~Param();
+        virtual ~Param();
 
 
 

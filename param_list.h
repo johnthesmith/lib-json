@@ -24,7 +24,15 @@ struct ParamList : public Heap
 {
     private:
 
-        ParamList* parent = NULL;
+        ParamList*  parent = NULL;
+
+        ParamList* fromBufferInternal
+        (
+            void*&,          /* buffer */
+            const size_t,    /* size of buffer */
+            bool&
+        );
+
 
     public:
 
@@ -635,6 +643,7 @@ struct ParamList : public Heap
             void*&,    /* buffer */
             size_t&    /* size of buffer */
         );
+
 
 
 

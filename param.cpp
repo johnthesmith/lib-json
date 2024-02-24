@@ -23,7 +23,15 @@ Param::Param()
 */
 Param::~Param()
 {
-    resize( 0 );
+    if( isObject() )
+    {
+        /* Destroy object */
+        getObject() -> destroy();
+    }
+    else
+    {
+        resize( 0 );
+    }
 }
 
 
@@ -120,12 +128,14 @@ Param* Param::setValue
     size_t      aSize /* Size of buffer */
 )
 {
-    if( getType() == KT_OBJECT )
+    if( isObject() )
     {
         getObject() -> destroy();
     }
-
-    resize( aSize );
+    else
+    {
+        resize( aSize );
+    }
 
     /* Set type */
     type = aType;
@@ -200,14 +210,14 @@ string Param::getString()
     string result = "";
     switch( getType() )
     {
-        case KT_BOOL:
-            result = getBool() ? "true" : "false";
-        break;
         case KT_NULL:
             result = "null";
         break;
         case KT_UNKNOWN:
             result = "unknown";
+        break;
+        case KT_BOOL:
+            result = getBool() ? "true" : "false";
         break;
         case KT_INT:
             result = to_string( getInt() );
@@ -222,6 +232,9 @@ string Param::getString()
         break;
         case KT_OBJECT:
             result = "[object]";
+        break;
+        case KT_ARRAY:
+            result = "[array]";
         break;
     }
     return result;
@@ -269,6 +282,10 @@ bool Param::getBool()
             result = p != NULL ? ( p -> getCount() == 0 ? false : true ): false;
         }
         break;
+        case KT_ARRAY:
+            /* TODO emplement */
+            result = false;
+        break;
     }
 
     return result;
@@ -315,6 +332,10 @@ long long int Param::getInt()
             result = p != NULL ? p -> getCount() : 0;
         }
         break;
+        case KT_ARRAY:
+            /* TODO emplement */
+            result = 0;
+        break;
     }
 
     return result;
@@ -360,6 +381,10 @@ double Param::getDouble()
             auto p = getObject();
             result = p != NULL ? ( double )p -> getCount() : 0.0;
         }
+        break;
+        case KT_ARRAY:
+            /* TODO emplement */
+            result = 0.0;
         break;
     }
 

@@ -811,8 +811,6 @@ ParamList* ParamList::setPath
 {
     ParamList* result = this;
     int c = aName.size();
-    int i = 0;
-
     for( int i = 0; i < c; i++ )
     {
         Param* param = result -> getByName( aName[ i ] );
@@ -1225,6 +1223,7 @@ ParamList* ParamList::setParam
         case KT_NULL:
         case KT_UNKNOWN:
         case KT_ARRAY:
+        case KT_DATA:
         break;
         case KT_BOOL:
             setBool( name, aParam -> getBool() );
@@ -1352,44 +1351,58 @@ ParamList* ParamList::fromBuffer
     size_t  aSize       /* size of buffer */
 )
 {
+    bool stop = false;
+    fromBufferInternal( aBuffer, aSize, stop );
+    return this;
+}
+
+
+
+/*
+    Fill params from buffer
+*/
+ParamList* ParamList::fromBufferInternal
+(
+    void*&  aBuffer,    /* buffer */
+    size_t  aSize,      /* size of buffer */
+    bool&   aStop
+)
+{
     size_t      pos = 0;
     ParamType   type = KT_UNKNOWN;
     size_t      sizeOfName = 0;
     size_t      sizeOfValue = 0;
     string      name  = "";
 
-    size_t headerSize = sizeof( ParamType ) + sizeof( size_t ) * 2;
-    bool stop = false;
-
-    while( pos < aSize && !stop )
+    while( pos < aSize && !aStop )
     {
         /* Read type of value */
-        stop = pos + sizeof( type ) > aSize  || stop;
-        if( !stop )
+        aStop = pos + sizeof( type ) > aSize  || aStop;
+        if( !aStop )
         {
             memcpy( &type, &( (char*) aBuffer )[ pos ], sizeof( type ));
             pos += sizeof( type );
         }
 
         /* Read size of name */
-        stop = pos + sizeof( size_t ) > aSize || stop;
-        if( !stop )
+        aStop = pos + sizeof( size_t ) > aSize || aStop;
+        if( !aStop )
         {
             memcpy( &sizeOfName, &( (char*) aBuffer )[ pos ], sizeof( size_t ));
             pos += sizeof( size_t );
         }
 
         /* Read size of buffer */
-        stop = pos + sizeof( sizeOfValue ) > aSize || stop;
-        if( !stop )
+        aStop = pos + sizeof( sizeOfValue ) > aSize || aStop;
+        if( !aStop )
         {
             memcpy( &sizeOfValue, &( (char*) aBuffer )[ pos ], sizeof( sizeOfValue ));
             pos += sizeof( sizeOfValue );
         }
 
         /* Read name */
-        stop = pos + sizeOfName > aSize || stop;
-        if( !stop )
+        aStop = pos + sizeOfName > aSize || aStop;
+        if( !aStop )
         {
             name.resize( sizeOfName );
             memcpy( &name[0], &( (char*) aBuffer )[ pos ], sizeOfName );
@@ -1397,18 +1410,22 @@ ParamList* ParamList::fromBuffer
         }
 
         /* Check size of value */
-        stop = pos + sizeOfValue > aSize || stop;
-        if( !stop )
+        aStop = pos + sizeOfValue > aSize || aStop;
+        if( !aStop )
         {
             switch( type )
             {
+                case KT_NULL:
+                case KT_UNKNOWN:
+                case KT_ARRAY:
+                break;
                 case KT_OBJECT:
                 {
                     auto buffer = (void*) ( &( (char*) aBuffer )[ pos ]);
-                    auto value = ParamList::create() -> fromBuffer( buffer, sizeOfValue );
+                    auto value = ParamList::create()
+                    -> fromBufferInternal( buffer, sizeOfValue, aStop );
 
-                    stop = !value -> isOk();
-                    if( !stop )
+                    if( !aStop )
                     {
                        setObject( name, value );
                     }
@@ -1462,11 +1479,6 @@ ParamList* ParamList::fromBuffer
         }
     }
 
-    if( stop )
-    {
-        setCode( "BufferStructureError" );
-    }
-
     return this;
 }
 
@@ -1490,6 +1502,10 @@ ParamList* ParamList::calcSize
 
         switch( p -> getType() )
         {
+            case KT_ARRAY:
+            case KT_UNKNOWN:
+            case KT_NULL:
+            break;
             case KT_OBJECT:
                 p -> getObject() -> calcSize( aSize );
             break;
@@ -1522,6 +1538,10 @@ ParamList* ParamList::fillBuffer
         /* Write value */
         switch( p -> getType() )
         {
+            case KT_NULL:
+            case KT_ARRAY:
+            case KT_UNKNOWN:
+            break;
             case KT_OBJECT:
             {
                 auto value =  p -> getObject();

@@ -58,7 +58,6 @@ void ParamListLog::dumpInternal
             break;
             case KT_DATA:
             {
-                auto b  = p -> getData();
                 auto s  = p -> getSize();
                 aLog
                 -> trace()

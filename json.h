@@ -94,7 +94,8 @@ class Json : public Result
         /*
             Create and return new json object
         */
-        void destroy();
+        virtual void destroy();
+
 
 
 
@@ -220,6 +221,4 @@ class Json : public Result
             vector <string>,
             ParamList* = NULL
         );
-
-
 };
