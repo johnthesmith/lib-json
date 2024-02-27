@@ -23,17 +23,7 @@ Param::Param()
 */
 Param::~Param()
 {
-    if( isObject() )
-    {
-        /* Destroy object */
-        getObject() -> destroy();
-    }
-    else
-    {
-        resize( 0 );
-    }
 }
-
 
 
 /*
@@ -49,8 +39,24 @@ Param* Param::create()
 /*
     Destroy the Param
 */
-void Param::destroy()
+void Param::destroy
+(
+    bool freeData   /* True default */
+)
 {
+    if( freeData )
+    {
+        if( isObject() )
+        {
+                /* Destroy object */
+                getObject() -> destroy();
+        }
+        else
+        {
+            resize( 0 );
+        }
+    }
+
     delete this;
 }
 
@@ -398,7 +404,7 @@ double Param::getDouble()
 */
 ParamList* Param::getObject()
 {
-    return getType() == KT_OBJECT ? (ParamList*)value : NULL;
+    return isObject() ? (ParamList*)value : NULL;
 }
 
 

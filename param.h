@@ -71,7 +71,10 @@ class Param
         /*
             Destroy the Param
         */
-        virtual void destroy();
+        virtual void destroy
+        (
+            bool = true
+        );
 
 
 

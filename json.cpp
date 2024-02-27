@@ -440,7 +440,8 @@ Json* Json::fromString
                 /* Destroy JSON paramlist */
                 paramList -> destroy();
                 /* Set first element Paramlist of root as Json Paramlist */
-                paramList = obj -> paramList -> getByIndex( 0 ) -> getObject();
+                paramList = (ParamList*) (obj -> paramList -> extractByIndex( 0 ));
+
                 /* Remove objects from object */
                 obj -> paramList -> resize( 0 );
                 /* Destroy ROOT paramlist */

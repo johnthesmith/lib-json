@@ -1716,3 +1716,26 @@ ParamList* ParamList::filesFromPath
     }
     return this;
 }
+
+
+
+/*
+    Deatach the branch from paramlist
+    Deatached branch will be remove from this object and returns.
+*/
+char* ParamList::extractByIndex
+(
+    int aIndex
+)
+{
+    char* result = NULL;
+    auto param = getByIndex( aIndex );
+    if( param != NULL )
+    {
+        /* Parameter founded and is object */
+        remove( aIndex );
+        result = param -> getValue();
+        param -> destroy( false );
+    }
+    return result;
+}

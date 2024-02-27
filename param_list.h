@@ -739,5 +739,16 @@ struct ParamList : public Heap
         (
             string
         );
+
+
+
+        /*
+            Deatach the value from paramlist
+            Deatached valkue will be remove from this object and returns.
+        */
+        char* extractByIndex
+        (
+            int
+        );
 };
 
