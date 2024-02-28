@@ -355,7 +355,7 @@ Json* Json::fromString
                 {
                     if( obj -> fValueEnd && obj -> pairPart == PP_VALUE )
                     {
-                        obj -> pairEnd();
+//                        obj -> pairEnd();
                     }
                 }
                 else
