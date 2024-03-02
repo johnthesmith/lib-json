@@ -655,44 +655,6 @@ ParamList* ParamList::selectObject
 
 
 
-/*
-    Set bool value
-*/
-ParamList* ParamList::setBool
-(
-    string aName,   /* Name of parameter */
-    bool aValue     /* Value */
-)
-{
-    auto i = getIndexByName( aName );
-    Param* p = NULL;
-
-    if( i < 0 )
-    {
-        /* Create new boolean param */
-        p = Param::create() -> setName( aName );
-        push( p );
-    }
-    else
-    {
-        p = getByIndex( i );
-        /* Parameter exists */
-        if( p -> getType() !=  KT_BOOL )
-        {
-            /* And it is not a bool */
-            p -> destroy();
-            p = Param::create() -> setName( aName );
-            setByIndex( i, p );
-        }
-    }
-
-    /* Set value */
-    p -> setBool( aValue );
-
-    return this;
-}
-
-
 
 /*
     Push string value
@@ -800,6 +762,48 @@ ParamList* ParamList::setValue
 
 
 
+/*
+    Create or find and return Param by path
+*/
+Param* ParamList::createParam
+(
+    Path aName   /* Names of parameter */
+)
+{
+    Param* result = NULL;
+    ParamList* current = this;
+    int c = aName.size();
+    for( int i = 0; i < c; i++ )
+    {
+        Param* param = current -> getByName( aName[ i ] );
+        if( i < c - 1 )
+        {
+            /* Not a last element */
+            if( param == NULL || param -> getType() != KT_OBJECT )
+            {
+                auto iParamList = ParamList::create();
+                current -> setObject( aName[ i ], iParamList );
+                current = iParamList;
+            }
+            else
+            {
+                current = param -> getObject();
+            }
+        }
+        else
+        {
+            if( param == NULL )
+            {
+                param = Param::create() -> setName( aName[ i ] );
+                current -> push( param );
+            }
+            result = param;
+        }
+    }
+    return result;
+}
+
+
 
 /*
     Create path from vector
@@ -830,6 +834,53 @@ ParamList* ParamList::setPath
 
 
 
+
+
+/*
+    Set bool value
+*/
+ParamList* ParamList::setBool
+(
+    Path aPath, /* Name of parameter */
+    bool aValue /* Value */
+)
+{
+    createParam( aPath ) -> setBool( aValue );
+    return this;
+}
+
+
+
+/*
+    Set bool value
+*/
+ParamList* ParamList::setBool
+(
+    string aName,   /* Name of parameter */
+    bool aValue     /* Value */
+)
+{
+    createParam( Path{ aName } ) -> setBool( aValue );
+    return this;
+}
+
+
+
+/*
+    Set string value
+*/
+ParamList* ParamList::setString
+(
+    Path    aPath,   /* Path of parameter */
+    string  aValue   /* Default value */
+)
+{
+    createParam( aPath ) -> setString( aValue );
+    return this;
+}
+
+
+
 /*
     Set string value
 */
@@ -839,98 +890,35 @@ ParamList* ParamList::setString
     string aValue   /* Default value */
 )
 {
-    auto i = getIndexByName( aName );
-    Param* p = NULL;
-    if( i < 0 )
-    {
-        /* Create new string param */
-        p = Param::create() -> setName( aName );
-        push( p );
-    }
-    else
-    {
-        p = getByIndex( i );
-        /* Parameter exists */
-        if( p -> getType() !=  KT_STRING )
-        {
-            /* And it is not a string */
-            p -> destroy();
-            p = Param::create() -> setName( aName );
-            setByIndex( i, p );
-        }
-    }
-
-    /* Set value */
-    p -> setString( aValue );
-
+    createParam( Path { aName } ) -> setString( aValue );
     return this;
 }
 
 
-
 /*
-    Set int value
+    Set intg value
 */
 ParamList* ParamList::setInt
 (
-    string aName,           /* Name of parameter */
-    long long int aValue    /* Value */
+    Path    aPath,   /* Path of parameter */
+    long long int aValue   /* Default value */
 )
 {
-    auto i = getIndexByName( aName );
-    Param* p = NULL;
-
-    if( i < 0 )
-    {
-        /* Create new string param */
-        p = Param::create() -> setName( aName );
-        push( p );
-    }
-    else
-    {
-        p = getByIndex( i );
-        /* Parameter exists */
-        if( p -> getType() !=  KT_INT )
-        {
-            /* And it is not a string */
-            p -> destroy();
-            p = Param::create() -> setName( aName );
-            setByIndex( i, p );
-        }
-    }
-
-    /* Set value */
-    p -> setInt( aValue );
-
+    createParam( aPath ) -> setInt( aValue );
     return this;
 }
 
 
-
 /*
-    Set int value
+    Set intg value
 */
 ParamList* ParamList::setInt
 (
-    int aIndex,             /* Name of parameter */
-    long long int aValue    /* Value */
+    string aName,   /* Name of parameter */
+    long long int aValue   /* Default value */
 )
 {
-    Param* p = getByIndex( aIndex );
-    if( p != NULL )
-    {
-        /* Parameter exists */
-        if( p -> getType() !=  KT_INT )
-        {
-            /* And it is not a string */
-            p -> destroy();
-            p = Param::create();
-            setByIndex( aIndex, p );
-        }
-        /* Set value */
-        p -> setInt( aValue );
-    }
-
+    createParam( Path{ aName }) -> setInt( aValue );
     return this;
 }
 
@@ -945,31 +933,22 @@ ParamList* ParamList::setDouble
     double aValue   /* Value */
 )
 {
-    auto i = getIndexByName( aName );
-    Param* p = NULL;
+    createParam( Path{ aName } ) -> setDouble( aValue );
+    return this;
+}
 
-    if( i < 0 )
-    {
-        /* Create new string param */
-        p = Param::create() -> setName( aName );
-        push( p );
-    }
-    else
-    {
-        p = getByIndex( i );
-        /* Parameter exists */
-        if( p != NULL && p -> getType() !=  KT_DOUBLE )
-        {
-            /* And it is not a string */
-            p -> destroy();
-            p = Param::create() -> setName( aName );
-            setByIndex( i, p );
-        }
-    }
 
-    /* Set value */
-    p -> setDouble( aValue );
 
+/*
+    Set intg value
+*/
+ParamList* ParamList::setDouble
+(
+    Path    aPath,   /* Path of parameter */
+    double aValue   /* Default value */
+)
+{
+    createParam( aPath ) -> setDouble( aValue );
     return this;
 }
 
@@ -1738,4 +1717,14 @@ char* ParamList::extractByIndex
         param -> destroy( false );
     }
     return result;
+}
+
+
+
+bool ParamList::exists
+(
+    Path aPath
+)
+{
+    return getByName( aPath ) != NULL;
 }

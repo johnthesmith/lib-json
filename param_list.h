@@ -486,6 +486,17 @@ struct ParamList : public Heap
 
 
 
+        /*
+            Set string value in to path
+        */
+        ParamList* setString
+        (
+            Path,           /* Path of parameter */
+            string = ""     /* Value */
+        );
+
+
+
 
         /*
             Set bool value
@@ -493,6 +504,17 @@ struct ParamList : public Heap
         ParamList* setBool
         (
             string,         /* Name of parameter */
+            bool = false    /* Value */
+        );
+
+
+
+        /*
+            Set bool value
+        */
+        ParamList* setBool
+        (
+            Path,           /* Path of parameter */
             bool = false    /* Value */
         );
 
@@ -510,12 +532,23 @@ struct ParamList : public Heap
 
 
         /*
-            Set int value
+            Set int value in to path
         */
         ParamList* setInt
         (
-            int,                /* Index of parameter */
+            Path,               /* Path of parameter */
             long long int = 0   /* Value */
+        );
+
+
+
+        /*
+            Set double value
+        */
+        ParamList* setDouble
+        (
+            Path,           /* Path of parameter */
+            double = 0.0    /* Value */
         );
 
 
@@ -680,6 +713,17 @@ struct ParamList : public Heap
         );
 
 
+
+        /*
+            Create or find and return Param by path
+        */
+        Param* createParam
+        (
+            Path aName   /* Names of parameter */
+        );
+
+
+
         /*
             Create path from vector
         */
@@ -687,7 +731,6 @@ struct ParamList : public Heap
         (
             Path /* Names of parameter */
         );
-
 
 
         ParamList* setParent
@@ -750,5 +793,12 @@ struct ParamList : public Heap
         (
             int
         );
+
+
+        bool exists
+        (
+            Path
+        );
+
 };
 
