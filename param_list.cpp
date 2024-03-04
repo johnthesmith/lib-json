@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "../core/rnd.h"
+#include "../core/console.h"
 #include "../core/buffer_to_hex.h"
 
 #include "param.h"
@@ -1120,9 +1121,10 @@ ParamList* ParamList::toStringInternal
 
         aResult
         << tab
-        << "["
+        << INK_GREY
         << p -> getNameOfType()
-        << "] "
+        << " "
+        << INK_WHITE
         << p -> getName();
 
         switch( p -> getType() )
@@ -1149,8 +1151,10 @@ ParamList* ParamList::toStringInternal
             break;
             default:
                 aResult
-                << "="
+                << " "
+                << INK_MAGENTA
                 << getString( i )
+                << INK_DEFAULT
                 << "\n";
             break;
         }

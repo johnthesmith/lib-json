@@ -106,14 +106,14 @@ string Param::getNameOfType()
 {
     switch( getType() )
     {
-        case KT_STRING  : return "STRING";
-        case KT_INT     : return "INT";
-        case KT_DOUBLE  : return "DOUBLE";
-        case KT_BOOL    : return "BOOL";
-        case KT_DATA    : return "DATA";
-        case KT_OBJECT  : return "OBJECT";
+        case KT_STRING  : return "string";
+        case KT_INT     : return "int";
+        case KT_DOUBLE  : return "double";
+        case KT_BOOL    : return "fool";
+        case KT_DATA    : return "data";
+        case KT_OBJECT  : return "object";
         default:
-        case KT_UNKNOWN : return "UNKNOWN";
+        case KT_UNKNOWN : return "unknown";
     }
 }
 
