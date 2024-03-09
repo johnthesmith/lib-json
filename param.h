@@ -20,7 +20,7 @@ using namespace std;
 
 
 
-struct ParamList;
+class ParamList;
 struct ArrayList;
 
 

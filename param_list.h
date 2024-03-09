@@ -20,7 +20,7 @@ typedef vector <string> Path;
 
 
 
-struct ParamList : public Heap
+class ParamList : public Heap
 {
     private:
 

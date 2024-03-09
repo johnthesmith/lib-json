@@ -1245,7 +1245,7 @@ ParamList* ParamList::copyTo
 {
     loop
     (
-        [ this, &aDestination ]
+        [ &aDestination ]
         ( Param* iParam )
         {
             aDestination -> setParam( iParam );
