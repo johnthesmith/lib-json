@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <cstring>
 #include <sstream>
+#include <map>
 
 #include "../core/rnd.h"
 #include "../core/console.h"
@@ -733,6 +734,31 @@ ParamList* ParamList::pushObject
 
 
 
+/*
+    Add and return new node
+*/
+ParamList* ParamList::addObject
+(
+    string aName
+)
+{
+    auto result = ParamList::create();
+    if( aName == "" )
+    {
+        /* Create new param */
+        push( Param::create() -> setObject( result ));
+    }
+    else
+    {
+        /* Add param by name */
+        setObject( aName, result );
+    }
+    return result;
+}
+
+
+
+
 
 /*
     Set string value
@@ -1038,9 +1064,10 @@ ParamList* ParamList::copyFrom
 */
 ParamList* ParamList::setData
 (
-    string  aName,   /* Name of parameter */
-    char*   aValue,  /* Value */
-    size_t  aSize    /* Size of value */
+    string  aName,  /* Name of parameter */
+    char*   aValue, /* Value */
+    size_t  aSize,  /* Size of value */
+    bool    aCopy   /* Copy of value */
 )
 {
     auto i = getIndexByName( aName );
@@ -1063,7 +1090,7 @@ ParamList* ParamList::setData
     }
 
     /* Set value */
-    p -> setData( aValue, aSize );
+    p -> setData( aValue, aSize, aCopy );
 
     return this;
 }
@@ -1076,8 +1103,9 @@ ParamList* ParamList::setData
 ParamList* ParamList::setData
 (
     int     aIndex,   /* Name of parameter */
-    char*   aValue,  /* Value */
-    size_t  aSize    /* Size of value */
+    char*   aValue,   /* Value */
+    size_t  aSize,    /* Size of value */
+    bool    aCopy     /* Copy of value */
 )
 {
     Param* p = getByIndex( aIndex );
@@ -1089,9 +1117,26 @@ ParamList* ParamList::setData
         p = Param::create();
         setByIndex( aIndex, p );
         /* Set value */
-        p -> setData( aValue, aSize );
+        p -> setData( aValue, aSize, aCopy );
     }
 
+    return this;
+}
+
+
+
+/*
+    Set data in to path
+*/
+ParamList* ParamList::setData
+(
+    Path    aPath,  /* Name of parameter */
+    char*   aValue, /* Buffer */
+    size_t  aSize,  /* Size of buffer */
+    bool    aCopy   /* Copy of value */
+)
+{
+    createParam( aPath ) -> setData( aValue, aSize, aCopy );
     return this;
 }
 
@@ -1142,10 +1187,10 @@ ParamList* ParamList::toStringInternal
                 auto s  = p -> getSize();
                 aResult
                 << " "
-                << "size:"
+                << "size: "
                 << s
-                << " "
-                << bufferToHex( b, s, " ", " ", "" )
+                << "\n"
+                << bufferToHex( b, s, "", " | ", "\n", 4 , 32 )
                 << "\n";
             }
             break;
@@ -1195,6 +1240,41 @@ ParamList* ParamList::loop
 
 
 
+/*
+    Purge elements by lyambda
+*/
+ParamList* ParamList::purge
+(
+    function <bool ( Param* )> callback
+)
+{
+    int c = getCount();
+    auto items = getItems();
+
+    vector <int> list;
+
+    /* Collect purging elements */
+    for( int i = 0; i < c; i++ )
+    {
+        auto param = ( Param*) items[ i ];
+        if( callback( param ))
+        {
+            list.push_back( i );
+        }
+    }
+
+    /* Remove and destroy elements */
+    for( const auto& item: list )
+    {
+        auto param = (Param*) remove( item );
+        param -> destroy();
+    }
+
+    return this;
+}
+
+
+
 ParamList* ParamList::setParam
 (
     Param* aParam
@@ -1206,7 +1286,9 @@ ParamList* ParamList::setParam
         case KT_NULL:
         case KT_UNKNOWN:
         case KT_ARRAY:
+        break;
         case KT_DATA:
+            setData( name, aParam -> getValue(), aParam -> getSize(), true );
         break;
         case KT_BOOL:
             setBool( name, aParam -> getBool() );
@@ -1731,4 +1813,53 @@ bool ParamList::exists
 )
 {
     return getByName( aPath ) != NULL;
+}
+
+
+
+/*
+    Compare the list of keys for this ParamList and argument ParamList
+*/
+bool ParamList::isEqual
+(
+    ParamList* aParamList,
+    vector <string> aKeys
+)
+{
+    bool result = true;
+
+    for( auto &name : aKeys )
+    {
+        auto param1 = getByName( name );
+        auto param2 = aParamList -> getByName( name );
+        result = result && param1 != NULL && param1 -> isEqual( param2 );
+    }
+
+    return result;
+}
+
+
+
+/*
+    Return true if lyambda function return true
+*/
+Param* ParamList::findFirst
+(
+    function <bool ( Param* )> aCallback
+)
+{
+    Param* result = NULL;
+    loop
+    (
+        [ &result, &aCallback ]
+        ( Param* iParam )
+        {
+            if( aCallback( iParam ))
+            {
+                result = iParam;
+            }
+            return result != NULL;
+        }
+    );
+    return result;
 }

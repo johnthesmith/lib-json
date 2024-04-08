@@ -126,12 +126,15 @@ class Param
 
         /*
             Set string value
+                Warning!!!
+                if Copy == false then source object will be destoryd by Param
         */
         Param* setValue
         (
             ParamType,
-            char*,      /* Buffer */
-            size_t = 0  /* Size of buffer */
+            char*,          /* Buffer */
+            size_t  = 0,    /* Size of buffer */
+            bool    = true  /* True for copy of buffer, false for set pointer of buffer */
         );
 
 
@@ -250,8 +253,9 @@ class Param
         */
         Param* setData
         (
-            char*,    /* Buffer */
-            size_t    /* Size of buffer */
+            char*,      /* Buffer */
+            size_t,     /* Size of buffer */
+            bool = true /* Copy flag */
         );
 
 

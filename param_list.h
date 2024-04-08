@@ -465,6 +465,16 @@ class ParamList : public Heap
 
 
         /*
+            Add and return new node
+        */
+        ParamList* addObject
+        (
+            string = "" /* Optional name of node */
+        );
+
+
+
+        /*
             Set string value
         */
         ParamList* setValue
@@ -591,9 +601,10 @@ class ParamList : public Heap
         */
         ParamList* setData
         (
-            string, /* Name of parameter */
-            char*,  /* Value */
-            size_t  /* Size of value */
+            string,         /* Name of parameter */
+            char*,          /* Value */
+            size_t,         /* Size of value */
+            bool    = true  /* Copy of value */
         );
 
 
@@ -603,9 +614,22 @@ class ParamList : public Heap
         */
         ParamList* setData
         (
-            int,    /* Name of parameter */
-            char*,  /* Value */
-            size_t  /* Size of value */
+            int,            /* Name of parameter */
+            char*,          /* Value */
+            size_t,         /* Size of value */
+            bool    = true  /* Copy of value */
+        );
+
+
+        /*
+            Set data value to path of keys
+        */
+        ParamList* setData
+        (
+            Path,           /* Path of parameter */
+            char*,          /* Value */
+            size_t,         /* Size of value */
+            bool    = true  /* Copy of value */
         );
 
 
@@ -634,6 +658,15 @@ class ParamList : public Heap
             function <bool ( Param* )>
         );
 
+
+
+        /*
+            Purge elements by lyambda
+        */
+        ParamList* purge
+        (
+            function <bool ( Param* )> callback
+        );
 
 
 
@@ -798,6 +831,29 @@ class ParamList : public Heap
         bool exists
         (
             Path
+        );
+
+
+
+        /*
+            Compare the list of keys for this ParamList and argument ParamList
+            it will return true for all keys equals.
+        */
+        bool isEqual
+        (
+            ParamList* aParamList,
+            vector <string> aKeys
+        );
+
+
+
+        /*
+            Loop for each alements.
+            Return first finded param if lyambda function return true
+        */
+        Param* findFirst
+        (
+            function <bool ( Param* )> /* Callback lambda function */
         );
 
 };

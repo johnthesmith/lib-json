@@ -125,13 +125,14 @@ string Param::getNameOfType()
 
 
 /*
-    Set string value
+    Set value
 */
 Param* Param::setValue
 (
     ParamType   aType,
-    char*       aBuffer,  /* Buffer */
-    size_t      aSize /* Size of buffer */
+    char*       aBuffer,    /* Buffer */
+    size_t      aSize,      /* Size of buffer */
+    bool        aCopy       /* True for copy of buffer, false for set pointer of buffer */
 )
 {
     if( isObject() )
@@ -152,7 +153,14 @@ Param* Param::setValue
     }
     else
     {
-        memcpy( value, aBuffer, size );
+        if( aCopy )
+        {
+            memcpy( value, aBuffer, size );
+        }
+        else
+        {
+            value = aBuffer;
+        }
     }
 
     return this;
@@ -495,11 +503,12 @@ Param* Param::setObject
 */
 Param* Param::setData
 (
-    char*   aBuffer,  /* Buffer */
-    size_t  aSize /* Size of buffer */
+    char*   aBuffer,        /* Buffer */
+    size_t  aSize,          /* Size of buffer */
+    bool    aCopy
 )
 {
-    setValue( KT_DATA, aBuffer, aSize );
+    setValue( KT_DATA, aBuffer, aSize, aCopy );
     return this;
 }
 
@@ -527,6 +536,7 @@ bool Param::isEqual
 )
 {
     return
+    a != NULL &&
     a -> getName() == getName() &&
     a -> getType() == getType() &&
     a -> getSize() == getSize() &&
@@ -542,3 +552,4 @@ bool Param::isObject()
 {
     return getType() == KT_OBJECT;
 }
+
