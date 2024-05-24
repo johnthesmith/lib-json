@@ -468,10 +468,77 @@ Json* Json::fromString
 /*
     Convert json to string
 */
-string Json::toString()
+string Json::toString
+(
+    bool aCompact
+)
 {
-    string result = "";
+    auto text = Text::create() -> setCompact( aCompact );
+    toStringInternal( text, paramList );
+    auto result = text -> getString();
+    text -> destroy();
     return result;
+}
+
+
+
+/*
+    Convert json to string
+*/
+Json* Json::toStringInternal
+(
+    Text* aResult,
+    ParamList* aParamList
+)
+{
+    /* get count of items */
+    auto items = aParamList -> getItems();
+    int c = aParamList -> getCount();
+
+    /* Array detection */
+    bool array = true;
+    for( int i = 0; i < c; i++ )
+    {
+        auto prm = ( Param*) items[ i ];
+        array = array && prm -> getName() == "";
+    }
+
+    /* Build values */
+
+    aResult -> begin( array ? "[" : "{" );
+
+    for( int i = 0; i < c; i++ )
+    {
+        aResult -> lineBegin();
+
+        auto prm = ( Param*) items[ i ];
+
+        if( prm -> isObject() )
+        {
+            if( !array )
+            {
+                aResult -> add( prm -> getName(), "\"" ) -> add( ":" );
+            }
+            toStringInternal( aResult, prm -> getObject() );
+        }
+        else
+        {
+            if( !array )
+            {
+                aResult -> add( prm -> getName(), "\"" ) -> add( ":" );
+            }
+            aResult -> add
+            (
+                prm -> getString(),
+                prm -> getType() == KT_STRING ? "\"" : ""
+            );
+        }
+        aResult -> add( i == c - 1 ? "" : "," );
+    }
+
+    aResult -> end( array ? "]" : "}" );
+
+    return this;
 }
 
 
@@ -500,6 +567,35 @@ Json* Json::fromFile
     }
     return this;
 }
+
+
+
+Json* Json::toFile
+(
+    string aFileName
+)
+{
+    if( isOk() )
+    {
+        auto t = ofstream( aFileName );
+        if( t.is_open() )
+        {
+            auto text = Text::create();
+            toStringInternal( text, paramList );
+
+            /* Write file */
+            t << text -> rdbuf();
+
+            text -> destroy();
+        }
+        else
+        {
+            setResult( "FileWriteError" );
+        }
+    }
+    return this;
+}
+
 
 
 
@@ -593,7 +689,7 @@ string Json::getString
 
 string Json::getString
 (
-    vector <string> aName,
+    Path aName,
     string aDefault
 )
 {
@@ -816,18 +912,18 @@ JsonObject* JsonObject::pairEnd()
                 break;
                 case KT_BOOL:
                     fArray
-                    ? paramList -> pushBool( stringToBool( value ))
-                    : paramList -> setBool( name, stringToBool( value ));
+                    ? paramList -> pushBool( toBool( value ))
+                    : paramList -> setBool( name, toBool( value ));
                 break;
                 case KT_INT:
                     fArray
-                    ? paramList -> pushInt( stringToInt( value ))
-                    : paramList -> setInt( name, stringToInt( value ));
+                    ? paramList -> pushInt( toInt( value ))
+                    : paramList -> setInt( name, toInt( value ));
                 break;
                 case KT_DOUBLE:
                     fArray
-                    ? paramList -> pushDouble( stringToDouble( value ))
-                    : paramList -> setDouble( name, stringToDouble( value ));
+                    ? paramList -> pushDouble( toDouble( value ))
+                    : paramList -> setDouble( name, toDouble( value ));
                 break;
             }
         }
@@ -879,3 +975,7 @@ JsonObject* JsonObject::addChar
 
 
 
+ParamList* Json::getParamList()
+{
+    return paramList;
+}

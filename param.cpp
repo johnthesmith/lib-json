@@ -237,7 +237,7 @@ string Param::getString()
             result = to_string( getInt() );
         break;
         case KT_DOUBLE:
-            result = to_string( getDouble() );
+            result = toString( getDouble(), 10 );
         break;
         case KT_DATA:
         case KT_STRING:
@@ -337,7 +337,7 @@ long long int Param::getInt()
         break;
         case KT_STRING:
         {
-            result = stringToInt( getString() );
+            result = toInt( getString() );
         }
         break;
         case KT_OBJECT:
@@ -387,7 +387,7 @@ double Param::getDouble()
         break;
         case KT_STRING:
         {
-            result = stringToDouble( getString() );
+            result = toDouble( getString() );
         }
         break;
         case KT_OBJECT:

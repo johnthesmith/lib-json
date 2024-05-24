@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../core/result.h"
-
 #include <stack>
 #include <vector>
 
 #include "param_list.h"
 
+
+#include "../core/result.h"
+#include "../core/text.h"
 
 
 enum PairPart
@@ -78,6 +79,14 @@ class Json : public Result
         int                 index               = 0;    /* Trace index of string */
         ParamList*          paramList           = NULL;
 
+        /*
+            Convert json to string
+        */
+        Json* toStringInternal
+        (
+            Text*,
+            ParamList*
+        );
     public:
         Json();
         ~Json();
@@ -120,15 +129,26 @@ class Json : public Result
 
 
         /*
-            Convert Json to string
+            Convert json to string
         */
-        string toString();
+        string toString
+        (
+            bool = true  /* Compact mode withot tabs ans delimiters */
+        );
+
 
 
 
         Json* fromFile
         (
-            string
+            string  /* File name */
+        );
+
+
+
+        Json* toFile
+        (
+            string  /* File name */
         );
 
 
@@ -170,7 +190,7 @@ class Json : public Result
 
         string getString
         (
-            vector <string>,
+            Path,
             string = ""
         );
 
@@ -221,4 +241,8 @@ class Json : public Result
             vector <string>,
             ParamList* = NULL
         );
+
+
+
+        ParamList* getParamList();
 };

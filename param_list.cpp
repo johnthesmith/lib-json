@@ -6,6 +6,7 @@
 
 #include "../core/rnd.h"
 #include "../core/console.h"
+#include "../core/str.h"
 #include "../core/buffer_to_hex.h"
 
 #include "param.h"
@@ -104,6 +105,11 @@ Param* ParamList::getByName
         {
             ParamList* iParamList = param == NULL ? this : param -> getObject();
             param = iParamList -> getByName( aName[ i ] );
+            if( param == NULL && isNum( aName[ i ]) )
+            {
+                /* Get param by index in no founded */
+                param = iParamList -> getByIndex( std::atoi( aName[ i ].c_str() ));
+            }
             if( i == c - 1 )
             {
                 result = param;
@@ -598,7 +604,11 @@ ParamList* ParamList::getObject
 )
 {
     Param* result = getByName( aName );
-    return result == NULL ? aDefault : result -> getObject();
+
+    return
+    result == NULL || !result -> isObject()
+    ? aDefault
+    : result -> getObject();
 }
 
 
@@ -772,13 +782,13 @@ ParamList* ParamList::setValue
     switch( getType( aValue ))
     {
         case KT_DOUBLE:
-            setDouble( aName, stringToDouble( aValue ));
+            setDouble( aName, toDouble( aValue ));
         break;
         case KT_INT:
-            setInt( aName, stringToInt( aValue ));
+            setInt( aName, toInt( aValue ));
         break;
         case KT_BOOL:
-            setBool( aName, stringToBool( aValue ));
+            setBool( aName, toBool( aValue ));
         break;
         default:
             setString( aName, aValue );
@@ -834,6 +844,7 @@ Param* ParamList::createParam
 
 /*
     Create path from vector
+    Warning!!! this is not a pair for getPath
 */
 ParamList* ParamList::setPath
 (
@@ -856,6 +867,38 @@ ParamList* ParamList::setPath
             result = param -> getObject();
         }
     }
+    return result;
+}
+
+
+
+/*
+    Convert ParamList contains the array of string
+    in to the Path vector
+    Warning!!! this is not a pair for setPath
+*/
+Path ParamList::getPath
+(
+    Path aName  /* Path to value with ParamList */
+)
+{
+    Path result;
+
+    auto paramList = getObject( aName );
+
+    if( paramList != NULL )
+    {
+        paramList -> loop
+        (
+            [ &result ]
+            ( Param* param )
+            {
+                result.push_back( param -> getString());
+                return false;
+            }
+        );
+    }
+
     return result;
 }
 
@@ -1235,6 +1278,50 @@ ParamList* ParamList::loop
     {
         stop = callback(( Param*) items[ i ] );
     }
+    return this;
+}
+
+
+
+/*
+    Recursive loop internal with lyambda
+    for recursionLoop method
+*/
+bool ParamList::recursionLoopInternal
+(
+    function <bool ( Param* )> callback
+)
+{
+    bool stop = false;
+    int c = getCount();
+    auto items = getItems();
+
+    for( int i = 0; i < c && !stop; i++ )
+    {
+        auto prm = ( Param*) items[ i ];
+        if( prm -> isObject() )
+        {
+            stop = prm -> getObject() -> recursionLoopInternal( callback );
+        }
+        else
+        {
+            stop = callback(( Param*) items[ i ] );
+        }
+    }
+    return stop;
+}
+
+
+
+/*
+    Recursive loop with lyambda muzzle
+*/
+ParamList* ParamList::recursionLoop
+(
+    function <bool ( Param* )> callback
+)
+{
+    recursionLoopInternal( callback );
     return this;
 }
 
@@ -1859,6 +1946,39 @@ Param* ParamList::findFirst
                 result = iParam;
             }
             return result != NULL;
+        }
+    );
+    return result;
+}
+
+
+
+/*
+    Operations
+*/
+
+/*
+    Calculate summ of subkeys by path
+*/
+double ParamList::calcSum
+(
+    Path aPath /* Path */
+)
+{
+    /* calculate sum of rnd of all mutation */
+    double result = 0.0;
+    loop
+    (
+        [ &result, &aPath ]
+        ( Param* iParam )
+        {
+            if( iParam -> isObject() )
+            {
+                /* Processing mutation */
+                auto item = iParam -> getObject();
+                result += item -> getDouble( aPath );
+            }
+            return false;
         }
     );
     return result;

@@ -34,6 +34,14 @@ class ParamList : public Heap
         );
 
 
+        /*
+            Internal recurcive loop with lyambda
+        */
+        bool recursionLoopInternal
+        (
+            function <bool ( Param* )>
+        );
+
     public:
 
 
@@ -661,6 +669,16 @@ class ParamList : public Heap
 
 
         /*
+            Recursion loop with lyambda
+        */
+        ParamList* recursionLoop
+        (
+            function <bool ( Param* )>
+        );
+
+
+
+        /*
             Purge elements by lyambda
         */
         ParamList* purge
@@ -766,6 +784,18 @@ class ParamList : public Heap
         );
 
 
+        /*
+            Convert ParamList contains the array of string
+            in to the Path vector
+            Warning!!! this is not a pair for setPath
+        */
+        Path getPath
+        (
+            Path /* Path to value with ParamList */
+        );
+
+
+
         ParamList* setParent
         (
             ParamList*  /* Parent for this object */
@@ -856,5 +886,18 @@ class ParamList : public Heap
             function <bool ( Param* )> /* Callback lambda function */
         );
 
+
+
+        /*
+            Operations
+        */
+
+        /*
+            Calculate summ of subkeys by path
+        */
+        double calcSum
+        (
+            Path    /* Path */
+        );
 };
 
