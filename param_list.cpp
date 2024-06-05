@@ -1983,3 +1983,29 @@ double ParamList::calcSum
     );
     return result;
 }
+
+
+
+
+/*
+    Return true if the value exists
+*/
+bool ParamList::valueExists
+(
+    string a
+)
+{
+    auto result = false;
+    recursionLoop
+    (
+        [ &result, &a ]
+        (
+            Param* item
+        )
+        {
+            result = item -> getString() == a;
+            return result;
+        }
+    );
+    return result;
+}
