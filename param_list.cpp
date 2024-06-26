@@ -667,6 +667,23 @@ ParamList* ParamList::selectObject
 
 
 
+/*
+    Push vector of string values
+*/
+ParamList* ParamList::pushVector
+(
+    vector<string> aValues /* Values */
+)
+{
+    for( auto value:aValues )
+    {
+        pushString( value );
+    }
+    return this;
+}
+
+
+
 
 /*
     Push string value

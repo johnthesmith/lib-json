@@ -426,6 +426,16 @@ class ParamList : public Heap
 
 
         /*
+            Push vector of string values
+        */
+        ParamList* pushVector
+        (
+            vector<string> /* Values */
+        );
+
+
+
+        /*
             Push string value
         */
         ParamList* pushString
@@ -469,6 +479,7 @@ class ParamList : public Heap
         (
             ParamList*    /* Value */
         );
+
 
 
 
