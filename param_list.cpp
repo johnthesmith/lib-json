@@ -1127,7 +1127,7 @@ ParamList* ParamList::setData
     string  aName,  /* Name of parameter */
     char*   aValue, /* Value */
     size_t  aSize,  /* Size of value */
-    bool    aCopy   /* Copy of value */
+    bool    aCopy   /* Copy of value for true */
 )
 {
     auto i = getIndexByName( aName );
