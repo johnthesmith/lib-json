@@ -5,6 +5,7 @@
 #include <streambuf>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 #include "../core/utils.h"
 
@@ -530,7 +531,11 @@ Json* Json::toStringInternal
             aResult -> add
             (
                 prm -> getString(),
-                prm -> getType() == KT_STRING ? "\"" : ""
+                prm -> getType() == KT_STRING ||
+                (
+                    prm -> getType() == KT_DOUBLE &&
+                    isnan( prm -> getDouble())
+                ) ? "\"" : ""
             );
         }
         aResult -> add( i == c - 1 ? "" : "," );
