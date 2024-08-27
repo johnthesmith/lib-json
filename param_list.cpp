@@ -1295,6 +1295,33 @@ ParamList* ParamList::loop
     {
         stop = callback(( Param*) items[ i ] );
     }
+
+    return this;
+}
+
+
+
+/*
+    Loop with lyambda for objects
+*/
+ParamList* ParamList::objectsLoop
+(
+    OnObjectsLoop callback
+)
+{
+    bool stop = false;
+    int c = getCount();
+    auto items = getItems();
+
+    for( int i = 0; i < c && !stop; i++ )
+    {
+        auto param = ( Param*) items[ i ];
+        if( param -> isObject() )
+        {
+            stop = callback( param -> getObject(), param -> getName() );
+        }
+    }
+
     return this;
 }
 

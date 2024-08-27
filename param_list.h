@@ -17,6 +17,17 @@ using namespace std;
 
 
 typedef vector <string> Path;
+typedef function
+        <
+            bool
+            (
+                /* Param list */
+                ParamList*,
+                /* Name of parameter */
+                string
+            )
+        >
+        OnObjectsLoop;
 
 
 
@@ -675,6 +686,16 @@ class ParamList : public Heap
         ParamList* loop
         (
             function <bool ( Param* )>
+        );
+
+
+
+        /*
+            Loop with lyambda for objects
+        */
+        ParamList* objectsLoop
+        (
+            OnObjectsLoop
         );
 
 
