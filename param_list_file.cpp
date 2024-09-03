@@ -35,6 +35,7 @@ ParamListFile* ParamListFile::fromJsonFile
         -> resultTo( this )
         -> destroy();
     }
+
     return this;
 }
 

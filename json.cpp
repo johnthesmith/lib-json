@@ -570,6 +570,7 @@ Json* Json::fromFile
             setResult( "FileReadError" );
         }
     }
+
     return this;
 }
 
