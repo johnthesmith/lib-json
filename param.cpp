@@ -262,7 +262,6 @@ string Param::getString()
 bool Param::getBool()
 {
     bool result = false;
-
     switch( getType() )
     {
         case KT_BOOL:
