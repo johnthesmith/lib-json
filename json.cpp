@@ -561,7 +561,6 @@ Json* Json::fromFile
             /* Read file */
             stringstream b;
             b << t.rdbuf();
-
             /* Parsing file */
             fromString( b.str() );
         }
