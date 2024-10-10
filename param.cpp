@@ -48,8 +48,8 @@ void Param::destroy
     {
         if( isObject() )
         {
-                /* Destroy object */
-                getObject() -> destroy();
+            /* Destroy object */
+            getObject() -> destroy();
         }
         else
         {
@@ -139,28 +139,38 @@ Param* Param::setValue
     {
         getObject() -> destroy();
     }
-    else
-    {
-        resize( aSize );
-    }
+
+    resize( aSize );
 
     /* Set type */
     type = aType;
 
-    if( aSize == 0 )
+    switch( type )
     {
-        value = aBuffer;
-    }
-    else
-    {
-        if( aCopy )
-        {
-            memcpy( value, aBuffer, size );
-        }
-        else
-        {
+        case KT_DATA:
+            if( aCopy )
+            {
+                if( value != NULL )
+                {
+                    memcpy( value, aBuffer, size );
+                }
+            }
+            else
+            {
+                value = aBuffer;
+            }
+        break;
+
+        case KT_OBJECT:
             value = aBuffer;
-        }
+        break;
+
+        default:
+            if( value != NULL )
+            {
+                memcpy( value, aBuffer, size );
+            }
+        break;
     }
 
     return this;
@@ -204,11 +214,13 @@ Param* Param::resize
             value = NULL;
         }
 
-        if( aSize != 0 )
+        size = aSize;
+
+        if( size != 0 )
         {
-            size = aSize;
             value = new char[ size ];
         }
+
     }
     return this;
 }
@@ -241,8 +253,19 @@ string Param::getString()
         break;
         case KT_DATA:
         case KT_STRING:
-            result.resize( getSize() );
-            memcpy( &result[0], getValue(), getSize() );
+        {
+            auto size = getSize();
+            if( size != 0 )
+            {
+                result.resize( size );
+                memcpy
+                (
+                    &result[0],
+                    getValue(),
+                    size
+                );
+            }
+        }
         break;
         case KT_OBJECT:
             result = "[object]";
