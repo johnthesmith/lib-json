@@ -1843,8 +1843,9 @@ ParamList* ParamList::getRoot()
 */
 Param* ParamList::getRnd()
 {
-    return  ( getCount() > 0 )
-    ? getByIndex( Rnd::get( 0, getCount() - 1 ))
+    auto c = getCount();
+    return  ( c > 0 )
+    ? getByIndex( Rnd::get( 0, c - 1 ))
     : NULL;
 }
 
@@ -2030,7 +2031,6 @@ double ParamList::calcSum
 
 
 
-
 /*
     Return true if the value exists
 */
@@ -2052,4 +2052,22 @@ bool ParamList::valueExists
         }
     );
     return result;
+}
+
+
+
+/*
+    Return true if the value exists
+*/
+bool ParamList::valueExists
+(
+    Path aPath,
+    string aValue
+)
+{
+    auto item = getObject( aPath );
+    return
+    item != NULL
+    ? item -> valueExists( aValue )
+    : false;
 }

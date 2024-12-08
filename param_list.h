@@ -943,5 +943,16 @@ class ParamList : public Heap
             string  /* Value */
         );
 
+
+
+        /*
+            Return true if the value exists
+        */
+        bool valueExists
+        (
+            Path,
+            string
+        );
+
 };
 
