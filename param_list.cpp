@@ -1328,6 +1328,25 @@ ParamList* ParamList::objectsLoop
 
 
 /*
+    Loop from existing path with lyambda for objects only
+*/
+ParamList* ParamList::objectsLoop
+(
+    Path aPath,
+    OnObjectsLoop aCallback
+)
+{
+    auto object = getObject( aPath );
+    if( object != NULL )
+    {
+        object -> objectsLoop( aCallback );
+    }
+    return this;
+}
+
+
+
+/*
     Recursive loop internal with lyambda
     for recursionLoop method
 */

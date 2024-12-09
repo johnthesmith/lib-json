@@ -701,6 +701,17 @@ class ParamList : public Heap
 
 
         /*
+            Loop from existing path with lyambda for objects only
+        */
+        ParamList* objectsLoop
+        (
+            Path,
+            OnObjectsLoop
+        );
+
+
+
+        /*
             Recursion loop with lyambda
         */
         ParamList* recursionLoop
