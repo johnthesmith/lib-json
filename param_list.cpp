@@ -3,6 +3,7 @@
 #include <cstring>
 #include <sstream>
 #include <map>
+#include <memory>  /* std::shared_ptr */
 
 #include "../core/rnd.h"
 #include "../core/console.h"
@@ -35,6 +36,13 @@ ParamList::~ParamList()
 ParamList* ParamList::create()
 {
     return new ParamList();
+}
+
+
+
+shared_ptr<ParamList> ParamList::shared()
+{
+    return make_shared <ParamList>();
 }
 
 
@@ -1074,6 +1082,21 @@ ParamList* ParamList::setObject
     /* Set value */
     p -> setObject( aValue );
 
+    return this;
+}
+
+
+/*
+    Set ParamList in to key
+    !!! Without copy of param list.
+*/
+ParamList* ParamList::setObject
+(
+    Path aPath,         /* Path of parameter */
+    ParamList* aValue   /* Value */
+)
+{
+    createParam( aPath ) -> setObject( aValue );
     return this;
 }
 

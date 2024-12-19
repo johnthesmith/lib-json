@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <functional>   /* for lyambda */
+#include <memory>       /* std::unique_ptr */
 
 #include "../core/heap.h"
 #include "param.h"
@@ -56,15 +57,30 @@ class ParamList : public Heap
     public:
 
 
+        /*
+            Constructor
+        */
         ParamList();
 
 
-
+        /*
+            Destructor
+        */
         ~ParamList();
 
 
 
+        /*
+            Create object
+        */
         static ParamList* create();
+
+
+
+        /*
+            Create selfdestruct object
+        */
+        static shared_ptr<ParamList> shared();
 
 
 
@@ -605,7 +621,8 @@ class ParamList : public Heap
 
 
         /*
-            Set double value
+            Set ParamList in to key
+            !!! Without copy of param list.
         */
         ParamList* setObject
         (
@@ -616,11 +633,24 @@ class ParamList : public Heap
 
 
         /*
-            Set double value
+            Set ParamList in to key
+            !!! Without copy of param list.
         */
         ParamList* setObject
         (
             int,            /* Index of parameter */
+            ParamList*      /* Value */
+        );
+
+
+
+        /*
+            Set ParamList in to key
+            !!! Without copy of param list.
+        */
+        ParamList* setObject
+        (
+            Path,           /* Path of the parameter */
             ParamList*      /* Value */
         );
 
