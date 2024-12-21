@@ -219,6 +219,34 @@ int ParamList::getIndexByName
 }
 
 
+
+/*
+    Return Param index by value
+*/
+int ParamList::getIndexByValue
+(
+    string a    /* Name */
+)
+{
+    int result = -1;
+
+    if( a != "" )
+    {
+        int c = getCount();
+        for( int i = 0; i < c && result == -1; i++ )
+        {
+            if( getByIndex( i ) -> getString() == a )
+            {
+                result = i;
+            }
+        }
+    }
+
+    return result;
+}
+
+
+
 /******************************************************************************
     get
 */

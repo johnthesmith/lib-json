@@ -189,6 +189,16 @@ class ParamList : public Heap
 
 
 
+        /*
+            Return index by value
+        */
+        int getIndexByValue
+        (
+            string  /* Name of parameter */
+        );
+
+
+
         string getString
         (
             int,            /* Index of parameter */

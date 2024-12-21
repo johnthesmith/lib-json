@@ -2,6 +2,7 @@
 
 #include <stack>
 #include <vector>
+#include <memory>       /* std::unique_ptr */
 
 #include "param_list.h"
 
@@ -106,6 +107,9 @@ class Json : public Result
         virtual void destroy();
 
 
+
+
+        static shared_ptr<Json> shared();
 
 
         /*

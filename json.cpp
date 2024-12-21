@@ -42,6 +42,13 @@ void Json::destroy()
 
 
 
+shared_ptr<Json> Json::shared()
+{
+    return make_shared <Json>();
+}
+
+
+
 /*
     Mearge paramlist to other paramList
 */
