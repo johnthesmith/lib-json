@@ -5,10 +5,11 @@
 #pragma once
 
 #include <vector>
-#include <functional>   /* for lyambda */
 #include <memory>       /* std::unique_ptr */
 
 #include "../core/heap.h"
+#include "../core/rnd.h"
+
 #include "param.h"
 
 
@@ -18,18 +19,6 @@ using namespace std;
 
 
 typedef vector <string> Path;
-typedef function
-        <
-            bool
-            (
-                /* Param list */
-                ParamList*,
-                /* Name of parameter */
-                string
-            )
-        >
-        OnObjectsLoop;
-
 
 
 class ParamList : public Heap
@@ -43,15 +32,6 @@ class ParamList : public Heap
             void*&,          /* buffer */
             const size_t,    /* size of buffer */
             bool&
-        );
-
-
-        /*
-            Internal recurcive loop with lyambda
-        */
-        bool recursionLoopInternal
-        (
-            function <bool ( Param* )>
         );
 
     public:
@@ -723,51 +703,153 @@ class ParamList : public Heap
         /*
             Loop with lyambda
         */
+        template <typename Func>
         ParamList* loop
         (
-            function <bool ( Param* )>
-        );
+            Func callback
+        )
+        {
+            bool stop = false;
+            int c = getCount();
+            auto items = getItems();
+
+            for( int i = 0; i < c && !stop; i++ )
+            {
+                stop = callback(( Param*) items[ i ] );
+            }
+
+            return this;
+        }
+
 
 
 
         /*
             Loop with lyambda for objects
         */
+        template <typename Func>
         ParamList* objectsLoop
         (
-            OnObjectsLoop
-        );
+            Func callback
+        )
+        {
+            bool stop = false;
+            int c = getCount();
+            auto items = getItems();
+
+            for( int i = 0; i < c && !stop; i++ )
+            {
+                auto param = ( Param*) items[ i ];
+                if( param -> isObject() )
+                {
+                    stop = callback( param -> getObject(), param -> getName() );
+                }
+            }
+
+            return this;
+        }
 
 
 
         /*
             Loop from existing path with lyambda for objects only
         */
+        template <typename Func>
         ParamList* objectsLoop
         (
-            Path,
-            OnObjectsLoop
-        );
+            Path aPath,
+            Func aCallback
+        )
+        {
+            auto object = getObject( aPath );
+            if( object != NULL )
+            {
+                object -> objectsLoop( aCallback );
+            }
+            return this;
+        }
 
 
 
         /*
-            Recursion loop with lyambda
+            Recursive loop internal with lyambda
+            for recursionLoop method
         */
+        template <typename Func>
+        bool recursionLoopInternal
+        (
+            Func /* <bool ( Param* )>*/ callback
+        )
+        {
+            bool stop = false;
+            int c = getCount();
+            auto items = getItems();
+
+            for( int i = 0; i < c && !stop; i++ )
+            {
+                auto prm = ( Param*) items[ i ];
+                if( prm -> isObject() )
+                {
+                    stop = prm -> getObject() -> recursionLoopInternal( callback );
+                }
+                else
+                {
+                    stop = callback(( Param*) items[ i ] );
+                }
+            }
+            return stop;
+        }
+
+
+
+        /*
+            Recursive loop with lyambda muzzle
+        */
+        template <typename Func>
         ParamList* recursionLoop
         (
-            function <bool ( Param* )>
-        );
+            Func /*<bool ( Param* )>*/ callback
+        )
+        {
+            recursionLoopInternal( callback );
+            return this;
+        }
 
 
 
         /*
             Purge elements by lyambda
         */
+        template <typename Func>
         ParamList* purge
         (
-            function <bool ( Param* )> callback
-        );
+            Func /* <bool ( Param* )> */ callback
+        )
+        {
+            int c = getCount();
+            auto items = getItems();
+
+            vector <int> list;
+
+            /* Collect purging elements */
+            for( int i = 0; i < c; i++ )
+            {
+                auto param = ( Param*) items[ i ];
+                if( callback( param ))
+                {
+                    list.push_back( i );
+                }
+            }
+
+            /* Remove and destroy elements */
+            for( const auto& item: list )
+            {
+                auto param = (Param*) remove( item );
+                param -> destroy();
+            }
+
+            return this;
+        }
 
 
 
@@ -896,7 +978,10 @@ class ParamList : public Heap
         /*
             Return random param if exists
         */
-        Param* getRnd();
+        Param* getRndItem
+        (
+            Rnd*
+        );
 
 
 
@@ -961,13 +1046,29 @@ class ParamList : public Heap
 
 
         /*
-            Loop for each alements.
-            Return first finded param if lyambda function return true
+            Return true if lyambda function return true
         */
+        template <typename Func>
         Param* findFirst
         (
-            function <bool ( Param* )> /* Callback lambda function */
-        );
+            Func /* <bool ( Param* )> */ aCallback
+        )
+        {
+            Param* result = NULL;
+            loop
+            (
+                [ &result, &aCallback ]
+                ( Param* iParam )
+                {
+                    if( aCallback( iParam ))
+                    {
+                        result = iParam;
+                    }
+                    return result != NULL;
+                }
+            );
+            return result;
+        };
 
 
 

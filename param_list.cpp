@@ -5,7 +5,6 @@
 #include <map>
 #include <memory>  /* std::shared_ptr */
 
-#include "../core/rnd.h"
 #include "../core/console.h"
 #include "../core/str.h"
 #include "../core/buffer_to_hex.h"
@@ -1330,151 +1329,6 @@ string ParamList::toString()
 
 
 
-/*
-    Loop with lyambda
-*/
-ParamList* ParamList::loop
-(
-    function <bool ( Param* )> callback
-)
-{
-    bool stop = false;
-    int c = getCount();
-    auto items = getItems();
-
-    for( int i = 0; i < c && !stop; i++ )
-    {
-        stop = callback(( Param*) items[ i ] );
-    }
-
-    return this;
-}
-
-
-
-/*
-    Loop with lyambda for objects
-*/
-ParamList* ParamList::objectsLoop
-(
-    OnObjectsLoop callback
-)
-{
-    bool stop = false;
-    int c = getCount();
-    auto items = getItems();
-
-    for( int i = 0; i < c && !stop; i++ )
-    {
-        auto param = ( Param*) items[ i ];
-        if( param -> isObject() )
-        {
-            stop = callback( param -> getObject(), param -> getName() );
-        }
-    }
-
-    return this;
-}
-
-
-
-/*
-    Loop from existing path with lyambda for objects only
-*/
-ParamList* ParamList::objectsLoop
-(
-    Path aPath,
-    OnObjectsLoop aCallback
-)
-{
-    auto object = getObject( aPath );
-    if( object != NULL )
-    {
-        object -> objectsLoop( aCallback );
-    }
-    return this;
-}
-
-
-
-/*
-    Recursive loop internal with lyambda
-    for recursionLoop method
-*/
-bool ParamList::recursionLoopInternal
-(
-    function <bool ( Param* )> callback
-)
-{
-    bool stop = false;
-    int c = getCount();
-    auto items = getItems();
-
-    for( int i = 0; i < c && !stop; i++ )
-    {
-        auto prm = ( Param*) items[ i ];
-        if( prm -> isObject() )
-        {
-            stop = prm -> getObject() -> recursionLoopInternal( callback );
-        }
-        else
-        {
-            stop = callback(( Param*) items[ i ] );
-        }
-    }
-    return stop;
-}
-
-
-
-/*
-    Recursive loop with lyambda muzzle
-*/
-ParamList* ParamList::recursionLoop
-(
-    function <bool ( Param* )> callback
-)
-{
-    recursionLoopInternal( callback );
-    return this;
-}
-
-
-
-/*
-    Purge elements by lyambda
-*/
-ParamList* ParamList::purge
-(
-    function <bool ( Param* )> callback
-)
-{
-    int c = getCount();
-    auto items = getItems();
-
-    vector <int> list;
-
-    /* Collect purging elements */
-    for( int i = 0; i < c; i++ )
-    {
-        auto param = ( Param*) items[ i ];
-        if( callback( param ))
-        {
-            list.push_back( i );
-        }
-    }
-
-    /* Remove and destroy elements */
-    for( const auto& item: list )
-    {
-        auto param = (Param*) remove( item );
-        param -> destroy();
-    }
-
-    return this;
-}
-
-
 
 ParamList* ParamList::setParam
 (
@@ -1911,11 +1765,14 @@ ParamList* ParamList::getRoot()
 /*
     Return random param if exists
 */
-Param* ParamList::getRnd()
+Param* ParamList::getRndItem
+(
+    Rnd* aRnd
+)
 {
     auto c = getCount();
     return  ( c > 0 )
-    ? getByIndex( Rnd::get( 0, c - 1 ))
+    ? getByIndex( aRnd -> get( 0, c - 1 ))
     : NULL;
 }
 
@@ -2037,32 +1894,6 @@ bool ParamList::isEqual
         result = result && param1 != NULL && param1 -> isEqual( param2 );
     }
 
-    return result;
-}
-
-
-
-/*
-    Return true if lyambda function return true
-*/
-Param* ParamList::findFirst
-(
-    function <bool ( Param* )> aCallback
-)
-{
-    Param* result = NULL;
-    loop
-    (
-        [ &result, &aCallback ]
-        ( Param* iParam )
-        {
-            if( aCallback( iParam ))
-            {
-                result = iParam;
-            }
-            return result != NULL;
-        }
-    );
     return result;
 }
 

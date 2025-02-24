@@ -84,6 +84,8 @@ string Param::getName
     string a
 )
 {
+// TODO REMOVE IT
+    if (!this) throw std::runtime_error("Param::getName() called on nullptr");
     return name == "" ? a : name ;
 }
 
