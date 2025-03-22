@@ -145,20 +145,41 @@ class Json : public Result
 
         Json* fromFile
         (
-            string  /* File name */
+            /* File name */
+            string
         );
 
 
 
         Json* toFile
         (
-            string  /* File name */
+            /* File name */
+            string
         );
 
 
 
         Json* dump();
 
+
+        /*
+            Search all keys with name,
+            load file from value,
+            replace key value from file
+        */
+        Json* include
+        (
+            /* Key name for including */
+            string = "include"
+        );
+
+
+
+        Json* overload
+        (
+            /* Key name for including */
+            string = "overload"
+        );
 
 
         Json* trace
@@ -171,7 +192,8 @@ class Json : public Result
 
         Json* error
         (
-            string,     /* message */
+            /* message */
+            string,
             JsonObject*
         );
 

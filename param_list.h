@@ -25,13 +25,23 @@ class ParamList : public Heap
 {
     private:
 
-        ParamList*  parent = NULL;
+        Param*      parent = NULL;
 
-        ParamList* fromBufferInternal
+        ParamList*  fromBufferInternal
         (
             void*&,          /* buffer */
             const size_t,    /* size of buffer */
             bool&
+        );
+
+
+
+        /*
+            Push one elemen
+        */
+        ParamList* push
+        (
+            Param* a
         );
 
     public:
@@ -104,7 +114,10 @@ class ParamList : public Heap
         */
         Param* getByName
         (
-            Path /* Names of parameter */
+             /* Names of parameter */
+            Path,
+            /* Use pointer * */
+            bool = false
         );
 
 
@@ -187,11 +200,11 @@ class ParamList : public Heap
 
 
 
-        string getString
-        (
-            string,         /* Name of parameter */
-            string  = ""    /* Dafault value */
-        );
+//        string getString
+//        (
+//            string,         /* Name of parameter */
+//            string  = ""    /* Dafault value */
+//        );
 
 
 
@@ -221,11 +234,11 @@ class ParamList : public Heap
 
 
 
-        bool getBool
-        (
-            string,         /* Name of parameter */
-            bool = false    /* Dafault value */
-        );
+//        bool getBool
+//        (
+//            string,         /* Name of parameter */
+//            bool = false    /* Dafault value */
+//        );
 
 
 
@@ -272,11 +285,11 @@ class ParamList : public Heap
 
 
 
-        long long int getInt
-        (
-            string,             /* Name of parameter */
-            long long int = 0   /* Dafault value */
-        );
+//        long long int getInt
+//        (
+//            string,             /* Name of parameter */
+//            long long int = 0   /* Dafault value */
+//        );
 
 
 
@@ -325,12 +338,12 @@ class ParamList : public Heap
         );
 
 
-
-        double getDouble
-        (
-            string,         /* Name of parameter */
-            double = 0.0    /* Dafault value */
-        );
+//
+//        double getDouble
+//        (
+//            string,         /* Name of parameter */
+//            double = 0.0    /* Dafault value */
+//        );
 
 
 
@@ -355,14 +368,14 @@ class ParamList : public Heap
         );
 
 
-
-        ParamList* getData
-        (
-            string,         /* Name of parameter */
-            char*&,
-            size_t&
-        );
-
+//
+//        ParamList* getData
+//        (
+//            string,         /* Name of parameter */
+//            char*&,
+//            size_t&
+//        );
+//
 
 
         /*
@@ -377,15 +390,15 @@ class ParamList : public Heap
 
 
 
-        /*
-            Get object value by name
-        */
-        ParamList* getObject
-        (
-            string,             /* Name of parameter */
-            ParamList* = NULL   /* Value */
-        );
-
+//        /*
+//            Get object value by name
+//        */
+//        ParamList* getObject
+//        (
+//            string,             /* Name of parameter */
+//            ParamList* = NULL   /* Value */
+//        );
+//
 
 
         /*
@@ -449,6 +462,7 @@ class ParamList : public Heap
         (
             vector<string> /* Values */
         );
+
 
 
 
@@ -772,6 +786,21 @@ class ParamList : public Heap
 
 
         /*
+            Recursive loop with lyambda muzzle
+        */
+        template <typename Func>
+        ParamList* recursionLoop
+        (
+            Func /*<bool ( Param* )>*/ callback
+        )
+        {
+            recursionLoopInternal( callback );
+            return this;
+        }
+
+
+
+        /*
             Recursive loop internal with lyambda
             for recursionLoop method
         */
@@ -788,32 +817,17 @@ class ParamList : public Heap
             for( int i = 0; i < c && !stop; i++ )
             {
                 auto prm = ( Param*) items[ i ];
-                if( prm -> isObject() )
+
+                stop = callback(( Param*) items[ i ] );
+                if( !stop && prm -> isObject() )
                 {
                     stop = prm -> getObject() -> recursionLoopInternal( callback );
-                }
-                else
-                {
-                    stop = callback(( Param*) items[ i ] );
                 }
             }
             return stop;
         }
 
 
-
-        /*
-            Recursive loop with lyambda muzzle
-        */
-        template <typename Func>
-        ParamList* recursionLoop
-        (
-            Func /*<bool ( Param* )>*/ callback
-        )
-        {
-            recursionLoopInternal( callback );
-            return this;
-        }
 
 
 
@@ -956,22 +970,25 @@ class ParamList : public Heap
         */
         Path getPath
         (
-            Path /* Path to value with ParamList */
+            Path = {} /* Path to value with ParamList */
         );
 
 
 
         ParamList* setParent
         (
-            ParamList*  /* Parent for this object */
+            Param*  /* Parent for this object */
         );
 
 
 
-        ParamList* getParent();
+        Param* getParent();
 
 
 
+        /*
+            Return root element
+        */
         ParamList* getRoot();
 
 
@@ -1028,7 +1045,10 @@ class ParamList : public Heap
 
         bool exists
         (
-            Path
+            /* Path */
+            Path,
+            /* Uses pointer */
+            bool = false
         );
 
 
@@ -1106,5 +1126,19 @@ class ParamList : public Heap
             string
         );
 
+
+
+        /*
+            Push object
+        */
+        ParamList* pushObject
+        (
+            /* Path for object */
+            Path aPath,
+            /* Value object */
+            ParamList*
+        );
+
 };
+
 

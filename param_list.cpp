@@ -98,12 +98,15 @@ Param* ParamList::getByName
 */
 Param* ParamList::getByName
 (
-    Path aName   /* Names of parameter */
+    /* Names of parameter */
+    Path aPath,
+    /* Use pointer * item if it exists */
+    bool aUsesPointer
 )
 {
     Param* result = NULL;
     Param* param = NULL;
-    int c = aName.size();
+    int c = aPath.size();
     int i = 0;
 
     if( c > 0 )
@@ -111,24 +114,42 @@ Param* ParamList::getByName
         do
         {
             ParamList* iParamList = param == NULL ? this : param -> getObject();
-            param = iParamList -> getByName( aName[ i ] );
-            if( param == NULL && isNum( aName[ i ]) )
+            param = iParamList -> getByName( aPath[ i ] );
+
+            /* Check up the pointer exists if param is null */
+            if( param == NULL && aUsesPointer )
             {
-                /* Get param by index in no founded */
-                param = iParamList -> getByIndex( std::atoi( aName[ i ].c_str() ));
+                param = iParamList -> getByName( "*" );
+                if( param != NULL && param -> isObject() )
+                {
+                    auto pointerPath = param -> getObject() -> getPath();
+                    for( int j = i; j < c; j ++ )
+                    {
+                        pointerPath.push_back( aPath[ j ]);
+                    }
+
+                    param = getRoot() -> getByName( pointerPath, true );
+                    i = c - 1;
+                }
             }
+
+            /* Find param by numeric */
+            if( param == NULL && isNum( aPath[ i ]) )
+
+            {
+                param = iParamList -> getByIndex( std::atoi( aPath[ i ].c_str() ));
+            }
+
             if( i == c - 1 )
             {
                 result = param;
             }
+
             i++;
         } while ( i < c && param != NULL && param -> getType() == KT_OBJECT );
     }
     return result;
 }
-
-
-
 
 
 
@@ -251,18 +272,18 @@ int ParamList::getIndexByValue
 */
 
 
-/*
-    Get string value
-*/
-string ParamList::getString
-(
-    string aName,   /* Name of parameter */
-    string aDefault /* Value */
-)
-{
-    return getString( getIndexByName( aName ), aDefault );
-}
-
+///*
+//    Get string value
+//*/
+//string ParamList::getString
+//(
+//    string aName,   /* Name of parameter */
+//    string aDefault /* Value */
+//)
+//{
+//    return getString( getIndexByName( aName ), aDefault );
+//}
+//
 
 
 
@@ -276,7 +297,7 @@ ParamList* ParamList::loadString
     string aDefault     /* Value */
 )
 {
-    aResult = getString( aName, aDefault );
+    aResult = getString( Path{ aName }, aDefault );
     return this;
 }
 
@@ -310,7 +331,7 @@ string ParamList::getString
     string aDefault         /* default value */
 )
 {
-    Param* result = getByName( aName );
+    Param* result = getByName( aName, true );
     return result == NULL ? aDefault : result -> getString();
 }
 
@@ -334,17 +355,17 @@ bool ParamList::getBool
 
 
 
-/*
-    Set boolean value by name
-*/
-bool ParamList::getBool
-(
-    string aName,   /* Name of parameter */
-    bool aDefault   /* Value */
-)
-{
-    return getBool( getIndexByName( aName ), aDefault );
-}
+///*
+//    Set boolean value by name
+//*/
+//bool ParamList::getBool
+//(
+//    string aName,   /* Name of parameter */
+//    bool aDefault   /* Value */
+//)
+//{
+//    return getBool( getIndexByName( aName ), aDefault );
+//}
 
 
 
@@ -358,7 +379,7 @@ bool ParamList::getBool
     bool aDefault           /* default value */
 )
 {
-    Param* result = getByName( aName );
+    Param* result = getByName( aName, true );
     return result == NULL ? aDefault : result -> getBool();
 }
 
@@ -374,7 +395,7 @@ ParamList* ParamList::loadBool
     bool aDefault   /* Default value */
 )
 {
-    aResult = getBool( aName, aDefault );
+    aResult = getBool( Path{ aName }, aDefault );
     return this;
 }
 
@@ -396,17 +417,17 @@ ParamList* ParamList::loadBool
 
 
 
-/*
-    Get integer value by name
-*/
-long long int ParamList::getInt
-(
-    string aName,   /* Name of parameter */
-    long long int aDefault    /* Value */
-)
-{
-    return getInt( getIndexByName( aName ), aDefault );
-}
+///*
+//    Get integer value by name
+//*/
+//long long int ParamList::getInt
+//(
+//    string aName,   /* Name of parameter */
+//    long long int aDefault    /* Value */
+//)
+//{
+//    return getInt( getIndexByName( aName ), aDefault );
+//}
 
 
 
@@ -438,7 +459,7 @@ long long int ParamList::getInt
     long long int aDefault  /* default value */
 )
 {
-    Param* result = getByName( aName );
+    Param* result = getByName( aName, true );
     return result == NULL ? aDefault : result -> getInt();
 }
 
@@ -454,7 +475,7 @@ ParamList* ParamList::loadInt
     int aDefault        /* Default value */
 )
 {
-    aResult = (int) getInt( aName, aDefault );
+    aResult = (int) getInt( Path{ aName }, aDefault );
     return this;
 }
 
@@ -470,7 +491,7 @@ ParamList* ParamList::loadInt
     long long int aDefault  /* Default value */
 )
 {
-    aResult = getInt( aName, aDefault );
+    aResult = getInt( Path{ aName }, aDefault );
     return this;
 }
 
@@ -486,24 +507,24 @@ ParamList* ParamList::loadInt
     unsigned int aDefault   /* Default value */
 )
 {
-    aResult = getInt( aName, aDefault );
+    aResult = getInt( Path{ aName }, aDefault );
     return this;
 }
 
 
 
 
-/*
-    Get double value by name
-*/
-double ParamList::getDouble
-(
-    string aName,   /* Name of parameter */
-    double aDefault    /* Value */
-)
-{
-    return getDouble( getIndexByName( aName ), aDefault );
-}
+///*
+//    Get double value by name
+//*/
+//double ParamList::getDouble
+//(
+//    string aName,   /* Name of parameter */
+//    double aDefault    /* Value */
+//)
+//{
+//    return getDouble( getIndexByName( aName ), aDefault );
+//}
 
 
 
@@ -534,7 +555,7 @@ double ParamList::getDouble
     double aDefault         /* default value */
 )
 {
-    Param* result = getByName( aName );
+    Param* result = getByName( aName, true );
     return result == NULL ? aDefault : result -> getDouble();
 }
 
@@ -560,16 +581,16 @@ ParamList* ParamList::getData
 
 
 
-
-ParamList* ParamList::getData
-(
-    string aName,     /* Name of parameter */
-    char*& aBuffer,
-    size_t& aSize
-)
-{
-    return getData( getIndexByName( aName ), aBuffer, aSize );
-}
+//
+//ParamList* ParamList::getData
+//(
+//    string aName,     /* Name of parameter */
+//    char*& aBuffer,
+//    size_t& aSize
+//)
+//{
+//    return getData( getIndexByName( aName ), aBuffer, aSize );
+//}
 
 
 
@@ -583,7 +604,7 @@ ParamList* ParamList::getData
     size_t& aSize
 )
 {
-    Param* p = getByName( aName );
+    Param* p = getByName( aName, true );
     if( p != NULL )
     {
         aBuffer = p -> getValue();
@@ -594,21 +615,18 @@ ParamList* ParamList::getData
 
 
 
-
-
-
-/*
-    Get object value by name
-*/
-ParamList* ParamList::getObject
-(
-    string aName,   /* Name of parameter */
-    ParamList* aDefault    /* Value */
-)
-{
-    return getObject( getIndexByName( aName ), aDefault );
-}
-
+///*
+//    Get object value by name
+//*/
+//ParamList* ParamList::getObject
+//(
+//    string aName,   /* Name of parameter */
+//    ParamList* aDefault    /* Value */
+//)
+//{
+//    return getObject( getIndexByName( aName ), aDefault );
+//}
+//
 
 
 /*
@@ -638,7 +656,7 @@ ParamList* ParamList::getObject
     ParamList* aDefault         /* default value */
 )
 {
-    Param* result = getByName( aName );
+    Param* result = getByName( aName, true );
 
     return
     result == NULL || !result -> isObject()
@@ -673,7 +691,7 @@ ParamList* ParamList::getObject
                 if
                 (
                     params != NULL &&
-                    params -> getString( aNameAttr ) == aValue
+                    params -> getString( Path{ aNameAttr }) == aValue
                 )
                 {
                     stop = true;
@@ -699,6 +717,24 @@ ParamList* ParamList::selectObject
 {
     return getObject( aPath, this );
 }
+
+
+
+
+/*
+    Push one elemen
+*/
+ParamList* ParamList::push
+(
+    Param* a
+)
+{
+    a -> setParent( this );
+    Heap::push( (void*)a );
+    return this;
+}
+
+
 
 
 
@@ -790,6 +826,33 @@ ParamList* ParamList::pushObject
 {
     /* Create new param */
     push( Param::create() -> setObject( aValue ));
+    return this;
+}
+
+
+
+/*
+    Push object
+*/
+ParamList* ParamList::pushObject
+(
+    /* Path for object */
+    Path aPath,
+    /* Value object */
+    ParamList* aValue
+)
+{
+    auto node = createParam( aPath );
+    if( !node -> isObject() )
+    {
+        node -> setObject( ParamList::create() );
+    }
+
+    node -> getObject() -> push
+    (
+        Param::create() -> setObject( aValue )
+    );
+
     return this;
 }
 
@@ -936,7 +999,7 @@ Path ParamList::getPath
 {
     Path result;
 
-    auto paramList = getObject( aName );
+    auto paramList = aName.size() == 0 ? this : getObject( aName );
 
     if( paramList != NULL )
     {
@@ -1088,8 +1151,6 @@ ParamList* ParamList::setObject
     auto i = getIndexByName( aName );
     Param* p = NULL;
 
-    aValue -> setParent( this );
-
     if( i < 0 )
     {
         /* Create new object */
@@ -1126,6 +1187,11 @@ ParamList* ParamList::setObject
     createParam( aPath ) -> setObject( aValue );
     return this;
 }
+
+
+
+
+
 
 
 
@@ -1280,12 +1346,14 @@ ParamList* ParamList::toStringInternal
         << p -> getNameOfType()
         << " "
         << INK_WHITE
-        << p -> getName();
+        << p -> getName()
+        ;
 
         switch( p -> getType() )
         {
             case KT_OBJECT:
-                aResult << "\n";
+                aResult
+                << "\n";
                 if( p -> getObject() != NULL )
                 {
                     p -> getObject() -> toStringInternal( aResult, depth + 1 );
@@ -1313,6 +1381,8 @@ ParamList* ParamList::toStringInternal
                 << "\n";
             break;
         }
+
+
     };
     return this;
 }
@@ -1733,7 +1803,7 @@ ParamList* ParamList::fillElementInBuffer
 
 ParamList* ParamList::setParent
 (
-    ParamList* a
+    Param* a
 )
 {
     parent = a;
@@ -1742,7 +1812,7 @@ ParamList* ParamList::setParent
 
 
 
-ParamList* ParamList::getParent()
+Param* ParamList::getParent()
 {
     return parent;
 }
@@ -1754,7 +1824,7 @@ ParamList* ParamList::getRoot()
     auto result = this;
     while( result -> getParent() != NULL )
     {
-        result = result -> getParent();
+        result = result -> getParent() -> getParent();
     }
     return result;
 }
@@ -1859,6 +1929,8 @@ char* ParamList::extractByIndex
         /* Parameter founded and is object */
         remove( aIndex );
         result = param -> getValue();
+        /* Freed the param */
+        ((ParamList*)result) -> setParent( NULL );
         param -> destroy( false );
     }
     return result;
@@ -1868,10 +1940,11 @@ char* ParamList::extractByIndex
 
 bool ParamList::exists
 (
-    Path aPath
+    Path aPath,
+    bool aUsesPointer
 )
 {
-    return getByName( aPath ) != NULL;
+    return getByName( aPath, aUsesPointer ) != NULL;
 }
 
 
@@ -1972,3 +2045,6 @@ bool ParamList::valueExists
     ? item -> valueExists( aValue )
     : false;
 }
+
+
+

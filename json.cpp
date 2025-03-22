@@ -11,6 +11,7 @@
 
 #include "param.h"
 #include "json.h"
+#include "../core/utils.h"
 
 
 
@@ -23,7 +24,10 @@ Json::Json()
 
 Json::~Json()
 {
-    paramList -> destroy();
+    if( paramList != nullptr )
+    {
+        paramList -> destroy();
+    }
 }
 
 
@@ -66,6 +70,90 @@ Json* Json::copyTo
 Json* Json::dump()
 {
     paramList -> dump();
+    return this;
+}
+
+
+
+/*
+    Search all keys with name,
+    load file from value,
+    replace key value from file
+*/
+Json* Json::include
+(
+    /* Key name for including */
+    string aKeyName
+)
+{
+    getParamList() -> recursionLoop
+    (
+        [ &aKeyName ]
+        (
+            Param* item
+        )
+        {
+            if( item -> isObject())
+            {
+                auto filename = item -> getObject() -> getString( Path{ aKeyName } );
+                if( filename != "" )
+                {
+                    auto loaded = Json::create() -> fromFile( filename );
+
+                    if( loaded -> isOk() )
+                    {
+                        item -> getObject() -> copyFrom( loaded -> getParamList());
+                    }
+                    else
+                    {
+                        item -> setString( loaded -> getCode() );
+                    }
+
+                    loaded -> destroy();
+                }
+            }
+            return false;
+        }
+    );
+    return this;
+}
+
+
+
+/*
+    Search all keys with name,
+    load file from value,
+    replace key value from file
+*/
+Json* Json::overload
+(
+    /* Key name for including */
+    string aKeyName
+)
+{
+    getParamList() -> recursionLoop
+    (
+        [ &aKeyName, this ]
+        (
+            Param* item
+        )
+        {
+            if( item -> isObject() )
+            {
+                auto pathes = item -> getObject() -> getObject( Path{ aKeyName });
+                if( pathes != NULL )
+                {
+                    auto path = pathes -> getPath();
+                    if( path.size() != 0 )
+                    {
+
+                        item -> getObject() -> copyFrom( getParamList() -> getObject( path ));
+                    }
+                }
+            }
+            return false;
+        }
+    );
     return this;
 }
 
@@ -693,7 +781,7 @@ string Json::getString
     string aDefault
 )
 {
-    return paramList -> getString( aName, aDefault );
+    return paramList -> getString( Path{ aName }, aDefault );
 }
 
 
@@ -717,7 +805,7 @@ long long int Json::getInt
     long long int aDefault
 )
 {
-    return paramList -> getInt( aName, aDefault );
+    return paramList -> getInt( Path{ aName }, aDefault );
 }
 
 
@@ -740,7 +828,7 @@ double Json::getDouble
     double aDefault
 )
 {
-    return paramList -> getDouble( aName, aDefault );
+    return paramList -> getDouble( Path{ aName }, aDefault );
 }
 
 
@@ -764,7 +852,7 @@ ParamList* Json::getObject
     ParamList* aDefault
 )
 {
-    return paramList -> getObject( aName, aDefault );
+    return paramList -> getObject( Path{ aName }, aDefault );
 }
 
 
@@ -783,14 +871,15 @@ ParamList* Json::getObject
 
 Json* Json::error
 (
-    string aMessage,   /* message */
+    /* message */
+    string aMessage,
     JsonObject* aObj
 )
 {
     setResult
     (
         "jsonParsError",
-        aMessage + " Line:" + to_string( line )
+        aMessage + " Line:" + to_string( line ) + "name:" + aObj -> name
     );
     return this;
 }

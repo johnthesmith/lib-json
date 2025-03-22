@@ -84,8 +84,6 @@ string Param::getName
     string a
 )
 {
-// TODO REMOVE IT
-    if (!this) throw std::runtime_error("Param::getName() called on nullptr");
     return name == "" ? a : name ;
 }
 
@@ -516,7 +514,12 @@ Param* Param::setObject
     ParamList* aValue
 )
 {
+    /* Change parent for paramlist */
+    aValue -> setParent( this );
+
+    /* Set ParamList as value value */
     setValue( KT_OBJECT, (char*)aValue );
+
     return this;
 }
 
@@ -565,15 +568,5 @@ bool Param::isEqual
     a -> getType() == getType() &&
     a -> getSize() == getSize() &&
     memcmp( a -> getValue(), getValue(), getSize()) == 0;
-}
-
-
-
-/*
-    Return true if paramete is object
-*/
-bool Param::isObject()
-{
-    return getType() == KT_OBJECT;
 }
 

@@ -34,6 +34,9 @@ class Param
         char*       value   = NULL;
         size_t      size    = 0;
 
+        /* Parent object */
+        ParamList*  parent  = NULL;
+
     public:
 
         /*
@@ -281,7 +284,35 @@ class Param
 
 
         /*
-            Return true if paramete is objec
+            Return true if paramete is object
         */
-        bool isObject();
+        bool isObject()
+        {
+            return getType() == KT_OBJECT;
+        }
+
+
+
+        /*
+            set parent
+        */
+        Param* setParent
+        (
+            ParamList* a
+        )
+        {
+            parent = a;
+            return this;
+        }
+
+
+
+        /*
+            Return parent
+        */
+        ParamList* getParent()
+        {
+            return parent;
+        }
+
 };
