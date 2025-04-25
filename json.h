@@ -169,17 +169,29 @@ class Json : public Result
         */
         Json* include
         (
-            /* Key name for including */
-            string = "include"
+            /* File path */
+            string = "",
+            /* Key name for including, key must contain this name */
+            string = "include",
+            /* Key name for included, key will contain this name after including */
+            string = "included"
         );
 
 
 
-        Json* overload
+        /*
+            Search all keys with name,
+            load file from value,
+            replace key value from file
+        */
+        Json* uninclude
         (
-            /* Key name for including */
-            string = "overload"
+            /* Key name for including, key must contain this name */
+            string = "include",
+            /* Key name for included, key will contain this name after including */
+            string = "included"
         );
+
 
 
         Json* trace

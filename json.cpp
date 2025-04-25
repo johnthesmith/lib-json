@@ -83,33 +83,46 @@ Json* Json::dump()
 Json* Json::include
 (
     /* Key name for including */
-    string aKeyName
+    string aPath,
+    string aIncludingName,
+    string aIncludedName
 )
 {
     getParamList() -> recursionLoop
     (
-        [ &aKeyName ]
+        [ &aIncludingName, &aIncludedName, &aPath, this ]
         (
             Param* item
         )
         {
-            if( item -> isObject())
+            if( item -> isObject() )
             {
-                auto filename = item -> getObject() -> getString( Path{ aKeyName } );
-                if( filename != "" )
+                auto includeItem = item -> getObject() -> getByName( aIncludingName );
+
+                if( includeItem != NULL )
                 {
-                    auto loaded = Json::create() -> fromFile( filename );
+                    includeItem -> setName( aIncludedName );
 
-                    if( loaded -> isOk() )
-                    {
-                        item -> getObject() -> copyFrom( loaded -> getParamList());
-                    }
-                    else
-                    {
-                        item -> setString( loaded -> getCode() );
-                    }
+                    auto fileName = includeItem -> getString();
 
-                    loaded -> destroy();
+                    if( fileName != "" )
+                    {
+                        fileName = ( aPath == "" ? "" : ( aPath + "/" )) + fileName;
+
+                        auto loaded = Json::create() -> fromFile( fileName );
+
+                        if( loaded -> isOk() )
+                        {
+                            item -> getObject() -> copyFrom( loaded -> getParamList());
+                        }
+                        else
+                        {
+                            loaded -> resultTo( this );
+                            item -> setString( loaded -> getCode() );
+                        }
+
+                        loaded -> destroy();
+                    }
                 }
             }
             return false;
@@ -117,6 +130,7 @@ Json* Json::include
     );
     return this;
 }
+
 
 
 
@@ -125,30 +139,33 @@ Json* Json::include
     load file from value,
     replace key value from file
 */
-Json* Json::overload
+Json* Json::uninclude
 (
-    /* Key name for including */
-    string aKeyName
+    string aIncludingName,
+    string aIncludedName
 )
 {
     getParamList() -> recursionLoop
     (
-        [ &aKeyName, this ]
+        [ &aIncludingName, &aIncludedName ]
         (
             Param* item
         )
         {
             if( item -> isObject() )
             {
-                auto pathes = item -> getObject() -> getObject( Path{ aKeyName });
-                if( pathes != NULL )
+                auto includeItem = item -> getObject() -> getByName( aIncludedName );
+                if( includeItem != NULL )
                 {
-                    auto path = pathes -> getPath();
-                    if( path.size() != 0 )
-                    {
-
-                        item -> getObject() -> copyFrom( getParamList() -> getObject( path ));
-                    }
+                    auto newObject =
+                    item -> setObject
+                    (
+                        ParamList::create() -> setString
+                        (
+                            aIncludingName,
+                            includeItem -> getString()
+                        )
+                    );
                 }
             }
             return false;
@@ -156,7 +173,6 @@ Json* Json::overload
     );
     return this;
 }
-
 
 
 

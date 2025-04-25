@@ -471,7 +471,8 @@ class ParamList : public Heap
         */
         ParamList* pushString
         (
-            string = ""     /* Value */
+            /* Value */
+            string = ""
         );
 
 
@@ -480,7 +481,8 @@ class ParamList : public Heap
         */
         ParamList* pushBool
         (
-            bool = false     /* Value */
+            /* Value */
+            bool = false
         );
 
 
@@ -489,7 +491,8 @@ class ParamList : public Heap
         */
         ParamList* pushInt
         (
-            long long int = 0     /* Value */
+            /* Value */
+            long long int = 0
         );
 
 
@@ -498,7 +501,8 @@ class ParamList : public Heap
         */
         ParamList* pushDouble
         (
-            double = 0.0     /* Value */
+            /* Value */
+            double = 0.0
         );
 
 
@@ -508,9 +512,20 @@ class ParamList : public Heap
         */
         ParamList* pushObject
         (
-            ParamList*    /* Value */
+            /* Value */
+            ParamList*
         );
 
+
+
+        /*
+            Push object value
+        */
+        ParamList* pushCopyOfObject
+        (
+            /* Value */
+            ParamList*
+        );
 
 
 
@@ -730,6 +745,27 @@ class ParamList : public Heap
             for( int i = 0; i < c && !stop; i++ )
             {
                 stop = callback(( Param*) items[ i ] );
+            }
+
+            return this;
+        }
+
+
+
+        /*
+            Loop with lyambda
+        */
+        template <typename Func>
+        ParamList* loop
+        (
+            Path aPath,
+            Func callback
+        )
+        {
+            auto object = getObject( aPath );
+            if( object != NULL )
+            {
+                object -> loop( callback );
             }
 
             return this;
@@ -1137,6 +1173,30 @@ class ParamList : public Heap
             Path aPath,
             /* Value object */
             ParamList*
+        );
+
+
+
+        /*
+            Copy object and put it by path
+        */
+        ParamList* copyObject
+        (
+            /* Path of parameter */
+            Path,
+            /* Value */
+            ParamList*
+        );
+
+
+
+        /*
+            Fill paramlist from vector
+        */
+        ParamList* fromVector
+        (
+            /* Vector of string */
+            vector <string>
         );
 
 };

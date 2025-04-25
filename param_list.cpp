@@ -127,7 +127,6 @@ Param* ParamList::getByName
                     {
                         pointerPath.push_back( aPath[ j ]);
                     }
-
                     param = getRoot() -> getByName( pointerPath, true );
                     i = c - 1;
                 }
@@ -135,7 +134,6 @@ Param* ParamList::getByName
 
             /* Find param by numeric */
             if( param == NULL && isNum( aPath[ i ]) )
-
             {
                 param = iParamList -> getByIndex( std::atoi( aPath[ i ].c_str() ));
             }
@@ -177,6 +175,7 @@ ParamList* ParamList::setByIndex
 )
 {
     Heap::setByIndex(aIndex, ( void* ) aParam );
+    aParam -> setParent( this );
     return this;
 }
 
@@ -831,6 +830,30 @@ ParamList* ParamList::pushObject
 
 
 
+
+/*
+    Push object value
+*/
+ParamList* ParamList::pushCopyOfObject
+(
+    /* Value */
+    ParamList* aValue
+)
+{
+    /* Create new param */
+    push
+    (
+        Param::create() -> setObject
+        (
+            ParamList::create()
+            -> copyFrom( aValue )
+        )
+    );
+    return this;
+}
+
+
+
 /*
     Push object
 */
@@ -971,7 +994,7 @@ ParamList* ParamList::setPath
     for( int i = 0; i < c; i++ )
     {
         Param* param = result -> getByName( aName[ i ] );
-        if( param == NULL || param -> getType() != KT_OBJECT )
+        if( param == NULL || !param -> isObject() )
         {
             auto iParamList = ParamList::create();
             result -> setObject( aName[ i ], iParamList );
@@ -1140,12 +1163,14 @@ ParamList* ParamList::setDouble
 
 
 /*
-    Set param list
+    Set param list by name
 */
 ParamList* ParamList::setObject
 (
-    string aName,       /* Name of parameter */
-    ParamList* aValue   /* Value */
+    /* Name of parameter */
+    string aName,
+    /* Value */
+    ParamList* aValue
 )
 {
     auto i = getIndexByName( aName );
@@ -1187,11 +1212,6 @@ ParamList* ParamList::setObject
     createParam( aPath ) -> setObject( aValue );
     return this;
 }
-
-
-
-
-
 
 
 
@@ -2045,6 +2065,50 @@ bool ParamList::valueExists
     ? item -> valueExists( aValue )
     : false;
 }
+
+
+
+/*
+    Copy object and put it by path
+*/
+ParamList* ParamList::copyObject
+(
+    /* Path of parameter */
+    Path aPath,
+    /* Value */
+    ParamList* aValue
+)
+{
+    if( aValue != NULL )
+    {
+        createParam( aPath )
+        -> setObject
+        (
+            ParamList::create()
+            -> copyFrom( aValue )
+        );
+    }
+    return this;
+}
+
+
+
+/*
+    Fill paramlist from vector
+*/
+ParamList* ParamList::fromVector
+(
+    /* Vector of string */
+    vector <string> a
+)
+{
+    for( auto item : a )
+    {
+        push( Param::create() -> setString( item ));
+    }
+    return this;
+}
+
 
 
 
