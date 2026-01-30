@@ -200,6 +200,20 @@ class ParamList : public Heap
 
 
 
+        /*
+            Get string vector string value by full path
+        */
+        vector<string> getStringVector
+        (
+            /* Name of parameter */
+            Path,
+            /* Default value */
+            vector<string> = {}
+        );
+
+
+
+
 //        string getString
 //        (
 //            string,         /* Name of parameter */
@@ -1197,6 +1211,17 @@ class ParamList : public Heap
         (
             /* Vector of string */
             vector <string>
+        );
+
+
+
+        /*
+            Remove by path
+        */
+        ParamList* removeByPath
+        (
+            /* Pathi */
+            Path
         );
 
 };

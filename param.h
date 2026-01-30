@@ -167,6 +167,13 @@ class Param
 
 
         /*
+            Get string vector string value
+        */
+        vector<string> getStringVector();
+
+
+
+        /*
             Return the value as bool
         */
         bool getBool();

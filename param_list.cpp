@@ -337,6 +337,23 @@ string ParamList::getString
 
 
 /*
+    Get string vector string value by full path
+*/
+vector<string> ParamList::getStringVector
+(
+    /* Name of parameter */
+    Path aName,
+    /* Default value */
+    vector<string> aDefault
+)
+{
+    Param* result = getByName( aName, true );
+    return result == NULL ? aDefault : result -> getStringVector();
+}
+
+
+
+/*
     get boolean value by index
 */
 bool ParamList::getBool
@@ -1954,6 +1971,29 @@ char* ParamList::extractByIndex
         param -> destroy( false );
     }
     return result;
+}
+
+
+
+/*
+    Remove by path
+*/
+ParamList* ParamList::removeByPath
+(
+    /* Pathi */
+    Path aPath
+)
+{
+    auto param = getByName( aPath, false );
+    if( param != NULL )
+    {
+        auto parentParamList = param -> getParent();
+
+        auto index = parentParamList -> indexBy( param );
+        parentParamList -> remove( index );
+        param -> destroy( true );
+    }
+    return this;
 }
 
 

@@ -226,6 +226,33 @@ Param* Param::resize
 }
 
 
+/*
+    Get string vector string value
+*/
+vector<string> Param::getStringVector()
+{
+    vector <string> result = {};
+    if( isObject() )
+    {
+        getObject() -> loop
+        (
+            [ &result ]
+            ( void* item )
+            {
+                auto param = ( Param* )item;
+                result.push_back( param -> getString() );
+                return false;
+            }
+        );
+    }
+    else
+    {
+        result.push_back( getString() );
+    }
+    return result;
+}
+
+
 
 
 /*

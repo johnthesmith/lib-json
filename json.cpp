@@ -677,7 +677,7 @@ Json* Json::fromFile
         }
         else
         {
-            setResult( "FileReadError" );
+            setResult( "FileReadError", aFileName );
         }
     }
 
