@@ -27,14 +27,11 @@ ParamListFile* ParamListFile::fromJsonFile
     string aFileName
 )
 {
-    if( isOk() )
-    {
-        Json::create()
-        -> fromFile( aFileName )
-        -> copyTo( this )
-        -> resultTo( this )
-        -> destroy();
-    }
+    Json::create()
+    -> fromFile( aFileName )
+    -> copyTo( this )
+    -> resultTo( this )
+    -> destroy();
 
     return this;
 }

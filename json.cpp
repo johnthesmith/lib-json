@@ -157,7 +157,6 @@ Json* Json::uninclude
                 auto includeItem = item -> getObject() -> getByName( aIncludedName );
                 if( includeItem != NULL )
                 {
-                    auto newObject =
                     item -> setObject
                     (
                         ParamList::create() -> setString
