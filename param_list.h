@@ -291,19 +291,23 @@ class ParamList : public Heap
 
 
 
+        /*
+            get integer value by index
+        */
         long long int getInt
         (
-            int,                /* Name of parameter */
-            long long int = 0   /* Dafault value */
-        );
-
-
-
-//        long long int getInt
-//        (
-//            string,             /* Name of parameter */
-//            long long int = 0   /* Dafault value */
-//        );
+            /* Index of parameter */
+            int aIndex,
+            /* Dafault value */
+            long long int aDefault = 0
+        )
+        {
+            auto p = getByIndex( aIndex );
+            return
+            p == NULL || p -> getType() == KT_UNKNOWN
+            ? aDefault
+            : p -> getInt();
+        }
 
 
 
@@ -312,62 +316,119 @@ class ParamList : public Heap
         */
         long long int getInt
         (
-            Path,    /* Name of parameter */
-            long long int = 0   /* default value */
+            /* Names of parameter */
+            Path aName,
+            /* default value */
+            long long int aDefault = 0
+        )
+        {
+            Param* result = getByName( aName, true );
+            return result == NULL ? aDefault : result -> getInt();
+        }
+
+
+
+
+        ParamList* loadInt
+        (
+            /* Name of parameter */
+            string,
+            /* Result */
+            int&,
+            /* Dafault value */
+            int = 0
         );
 
 
 
         ParamList* loadInt
         (
-            string,             /* Name of parameter */
-            int&,               /* Result */
-            int = 0             /* Dafault value */
+            /* Name of parameter */
+            string,
+            /* Result */
+            unsigned int&,
+            /* Dafault value */
+            unsigned int = 0
         );
 
 
 
         ParamList* loadInt
         (
-            string,             /* Name of parameter */
-            unsigned int&,      /* Result */
-            unsigned int = 0    /* Dafault value */
-        );
-
-
-
-        ParamList* loadInt
-        (
-            string,             /* Name of parameter */
+            /* Name of parameter */
+            string,
             long long int&,
-            long long int = 0   /* Dafault value */
+            /* Dafault value */
+            long long int = 0
         );
 
 
+        /**********************************************************************
+            UInt interfaces
+        */
 
-        double getDouble
+        /*
+            Return unsigned integer value by index
+        */
+        unsigned long long int getUInt
         (
-            int,            /* Name of parameter */
-            double = 0.0    /* Dafault value */
-        );
-
-
-//
-//        double getDouble
-//        (
-//            string,         /* Name of parameter */
-//            double = 0.0    /* Dafault value */
-//        );
+            /* Index of parameter */
+            int aIndex,
+            /* Dafault value */
+            unsigned long long int aDefault = 0
+        )
+        {
+            auto p = getByIndex( aIndex );
+            return
+            p == NULL || p -> getType() == KT_UNKNOWN
+            ? aDefault
+            : p -> getUInt();
+        }
 
 
 
         /*
-            Get double value by path
+            Return unsigned integer value by path
+        */
+        unsigned long long int getUInt
+        (
+            /* Names of parameter */
+            Path aName,
+            /* default value */
+            unsigned long long int aDefault = 0
+        )
+        {
+            Param* result = getByName( aName, true );
+            return result == NULL ? aDefault : result -> getUInt();
+        }
+
+
+
+
+        /**********************************************************************
+            Double interfaces
+        */
+
+        double getDouble
+        (
+            /* Name of parameter */
+            int,
+            /* Dafault value */
+            double = 0.0
+        );
+
+
+
+
+        /*
+            Return double value by path
         */
         double getDouble
         (
-            Path,  /* Name of parameter */
-            double = 0        /* default value */
+            /* Name of parameter */
+            Path,
+            /* default value */
+            double = 0
         );
 
 
@@ -548,7 +609,8 @@ class ParamList : public Heap
         */
         ParamList* addObject
         (
-            string = "" /* Optional name of node */
+            /* Optional name of node */
+            string = ""
         );
 
 
@@ -614,20 +676,64 @@ class ParamList : public Heap
         */
         ParamList* setInt
         (
-            string,             /* Name of parameter */
-            long long int = 0   /* Value */
-        );
+            /* Path of parameter */
+            Path    aPath,
+            /* Default value */
+            long long int aValue
+        )
+        {
+            createParam( aPath ) -> setInt( aValue );
+            return this;
+        }
+
+
+        /*
+            Set int value
+        */
+        ParamList* setInt
+        (
+            /* Name of parameter */
+            string aName,
+            /* Default value */
+            long long int aValue
+        )
+        {
+            createParam( Path{ aName }) -> setInt( aValue );
+            return this;
+        }
 
 
 
         /*
-            Set int value in to path
+            Set unsigned int value
         */
-        ParamList* setInt
+        ParamList* setUInt
         (
-            Path,               /* Path of parameter */
-            long long int = 0   /* Value */
-        );
+            /* Path of parameter */
+            Path    aPath,
+            /* Default value */
+            unsigned long long int aValue
+        )
+        {
+            createParam( aPath ) -> setUInt( aValue );
+            return this;
+        }
+
+
+        /*
+            Set unsigned int value
+        */
+        ParamList* setUInt
+        (
+            /* Name of parameter */
+            string aName,
+            /* Default value */
+            unsigned long long int aValue
+        )
+        {
+            createParam( Path{ aName }) -> setUInt( aValue );
+            return this;
+        }
 
 
 

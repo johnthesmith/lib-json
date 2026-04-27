@@ -750,8 +750,6 @@ Json* Json::trace
 
 
 
-
-
 ParamType Json::getType
 (
     string a
@@ -1031,6 +1029,7 @@ JsonObject* JsonObject::pairEnd()
                     ? paramList -> pushBool( toBool( value ))
                     : paramList -> setBool( name, toBool( value ));
                 break;
+                case KT_UINT:
                 case KT_INT:
                     fArray
                     ? paramList -> pushInt( toInt( value ))

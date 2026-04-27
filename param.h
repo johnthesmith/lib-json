@@ -188,6 +188,13 @@ class Param
 
 
         /*
+            Return the value as unsegned integer
+        */
+        long long int getUInt();
+
+
+
+        /*
             Return the value as float value
         */
         double getDouble();
@@ -234,6 +241,16 @@ class Param
         Param* setInt
         (
             long long int
+        );
+
+
+
+        /*
+            Set the value as unsigned integer
+        */
+        Param* setUInt
+        (
+            unsigned long long int
         );
 
 

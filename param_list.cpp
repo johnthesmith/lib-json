@@ -447,40 +447,6 @@ ParamList* ParamList::loadBool
 
 
 
-
-/*
-    get integer value by index
-*/
-long long int ParamList::getInt
-(
-    int aIndex,             /* Index of parameter */
-    long long int aDefault  /* Value */
-)
-{
-    auto p = getByIndex( aIndex );
-    return
-    p == NULL || p -> getType() == KT_UNKNOWN
-    ? aDefault
-    : p -> getInt();
-}
-
-
-
-/*
-    Get integer value by path
-*/
-long long int ParamList::getInt
-(
-    Path aName,  /* Name of parameter */
-    long long int aDefault  /* default value */
-)
-{
-    Param* result = getByName( aName, true );
-    return result == NULL ? aDefault : result -> getInt();
-}
-
-
-
 /*
     Get integer value
 */
@@ -939,6 +905,9 @@ ParamList* ParamList::setValue
         case KT_DOUBLE:
             setDouble( aName, toDouble( aValue ));
         break;
+        case KT_UINT:
+            setUInt( aName, toUInt( aValue ));
+        break;
         case KT_INT:
             setInt( aName, toInt( aValue ));
         break;
@@ -1119,33 +1088,6 @@ ParamList* ParamList::setString
     return this;
 }
 
-
-/*
-    Set intg value
-*/
-ParamList* ParamList::setInt
-(
-    Path    aPath,   /* Path of parameter */
-    long long int aValue   /* Default value */
-)
-{
-    createParam( aPath ) -> setInt( aValue );
-    return this;
-}
-
-
-/*
-    Set intg value
-*/
-ParamList* ParamList::setInt
-(
-    string aName,   /* Name of parameter */
-    long long int aValue   /* Default value */
-)
-{
-    createParam( Path{ aName }) -> setInt( aValue );
-    return this;
-}
 
 
 
@@ -1461,6 +1403,9 @@ ParamList* ParamList::setParam
         case KT_INT:
             setInt( name, aParam -> getInt() );
         break;
+        case KT_UINT:
+            setUInt( name, aParam -> getUInt() );
+        break;
         case KT_DOUBLE:
             setDouble( name, aParam -> getDouble() );
         break;
@@ -1680,6 +1625,14 @@ ParamList* ParamList::fromBufferInternal
                     setInt( name, value );
                     break;
                 }
+                case KT_UINT:
+                {
+                    unsigned long long int value = 0;
+                    memcpy( &value, &( (char*) aBuffer )[ pos ], sizeOfValue );
+                    pos += sizeOfValue;
+                    setUInt( name, value );
+                    break;
+                }
                 case KT_BOOL:
                 {
                     bool value = 0;
@@ -1738,6 +1691,7 @@ ParamList* ParamList::calcSize
             break;
             case KT_STRING:
             case KT_INT:
+            case KT_UINT:
             case KT_DOUBLE:
             case KT_BOOL:
             case KT_DATA:
@@ -1783,6 +1737,7 @@ ParamList* ParamList::fillBuffer
             }
             case KT_STRING:
             case KT_INT:
+            case KT_UINT:
             case KT_BOOL:
             case KT_DOUBLE:
             case KT_DATA:

@@ -108,6 +108,7 @@ string Param::getNameOfType()
     {
         case KT_STRING  : return "s";
         case KT_INT     : return "i";
+        case KT_UINT    : return "u";
         case KT_DOUBLE  : return "d";
         case KT_BOOL    : return "b";
         case KT_DATA    : return "h";
@@ -272,6 +273,9 @@ string Param::getString()
         case KT_BOOL:
             result = getBool() ? "true" : "false";
         break;
+        case KT_UINT:
+            result = std::to_string( static_cast<unsigned long long>( getUInt() ));
+        break;
         case KT_INT:
             result = to_string( getInt() );
         break;
@@ -323,6 +327,9 @@ bool Param::getBool()
         case KT_UNKNOWN:
             result = false;
         break;
+        case KT_UINT:
+            result = getUInt() != 0;
+        break;
         case KT_INT:
             result = getInt() != 0;
         break;
@@ -372,6 +379,7 @@ long long int Param::getInt()
         case KT_UNKNOWN:
             result = 0;
         break;
+        case KT_UINT:
         case KT_INT:
             memcpy( &result, getValue(), getSize() );
         break;
@@ -381,12 +389,73 @@ long long int Param::getInt()
         case KT_DATA:
         {
             auto copySize = min( sizeof( result ), getSize());
-            memcpy( &(( char* ) &result )[ sizeof( result ) - copySize ], getValue(), copySize );
+            memcpy
+            (
+                &(( char* ) &result )[ sizeof( result ) - copySize ],
+                getValue(),
+                copySize
+            );
         }
         break;
         case KT_STRING:
         {
             result = toInt( getString() );
+        }
+        break;
+        case KT_OBJECT:
+        {
+            auto p = getObject();
+            result = p != NULL ? p -> getCount() : 0;
+        }
+        break;
+        case KT_ARRAY:
+            /* TODO emplement */
+            result = 0;
+        break;
+    }
+
+    return result;
+}
+
+
+
+/*
+    Return the value as integer
+*/
+long long int Param::getUInt()
+{
+    long long int result = 0;
+
+    switch( getType() )
+    {
+        case KT_BOOL:
+            result = getBool() ? 1 : 0;
+        break;
+        case KT_NULL:
+        case KT_UNKNOWN:
+            result = 0;
+        break;
+        case KT_UINT:
+        case KT_INT:
+            memcpy( &result, getValue(), getSize() );
+        break;
+        case KT_DOUBLE:
+            result = (unsigned long long int) getDouble();
+        break;
+        case KT_DATA:
+        {
+            auto copySize = min( sizeof( result ), getSize());
+            memcpy
+            (
+                &(( char* ) &result )[ sizeof( result ) - copySize ],
+                getValue(),
+                copySize
+            );
+        }
+        break;
+        case KT_STRING:
+        {
+            result = toUInt( getString() );
         }
         break;
         case KT_OBJECT:
@@ -421,6 +490,9 @@ double Param::getDouble()
         case KT_NULL:
         case KT_UNKNOWN:
             result = 0.0;
+        break;
+        case KT_UINT:
+            result = (double) getUInt();
         break;
         case KT_INT:
             result = (double) getInt();
@@ -514,6 +586,20 @@ Param* Param::setInt
 )
 {
     setValue( KT_INT, (char*)&aValue, sizeof( aValue ));
+    return this;
+}
+
+
+
+/*
+    Set the value as integer
+*/
+Param* Param::setUInt
+(
+    unsigned long long int aValue
+)
+{
+    setValue( KT_UINT, (char*)&aValue, sizeof( aValue ));
     return this;
 }
 
